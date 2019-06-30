@@ -1,0 +1,13 @@
+﻿<UserControl x:Name="newTab" x:Class="BetterTabs.NewTab"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:BetterTabs"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800" MinHeight="17" MaxHeight="47" Height="27" MinWidth="10" Width="20">
+    <Grid>
+        <Button x:Name="newTabButton" Content="{Binding DisplayText, ElementName=newTab}" FontFamily="{DynamicResource {x:Static SystemFonts.MenuFontFamilyKey}}" FontWeight="Bold"/>
+
+    </Grid>
+</UserControl>
