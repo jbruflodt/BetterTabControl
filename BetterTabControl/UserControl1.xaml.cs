@@ -16,18 +16,13 @@ using System.Windows.Shapes;
 namespace BetterTabs
 {
     /// <summary>
-    /// Interaction logic for NewTab.xaml
+    /// Interaction logic for UserControl1.xaml
     /// </summary>
-    public partial class NewTab : UserControl
+    public partial class UserControl1 : UserControl
     {
-        public NewTab()
+        public UserControl1()
         {
             InitializeComponent();
-        }
-        public string DisplayText
-        {
-            get { return (string)GetValue(BetterTabControl.NewTabDisplayTextProperty); }
-            set { SetValue(BetterTabControl.NewTabDisplayTextProperty, value); }
         }
     }
 }

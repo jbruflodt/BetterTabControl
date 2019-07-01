@@ -66,11 +66,6 @@ namespace BetterTabs
             {
                 return selected;
             }
-            set
-            {
-                selected = value;
-                NotifyPropertyChanged("Selected");
-            }
         }
 
         internal bool HasMoved { get => hasMoved; set => hasMoved = value; }
@@ -93,6 +88,11 @@ namespace BetterTabs
         private void NotifyPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+        internal void SetSelected(bool value)
+        {
+            selected = value;
+            NotifyPropertyChanged("Selected");
         }
 
         public int Compare(Tab x, Tab y)

@@ -1,13 +1,133 @@
-﻿<UserControl x:Class="BetterTabs.BetterTabControl"
+﻿<UserControl x:Name="betterTabControl" x:Class="BetterTabs.BetterTabControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:BetterTabs"
+             xmlns:System="clr-namespace:System;assembly=mscorlib" xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <local:Tab x:Key="tab"/>
+        <System:String x:Key="NewTabDisplayText">+</System:String>
+        <SolidColorBrush x:Key="BarBackgroundColor" Color="{DynamicResource {x:Static SystemColors.MenuBarColorKey}}"/>
+        <SolidColorBrush x:Key="TabBackgroundColor" Color="{DynamicResource {x:Static SystemColors.MenuBarColorKey}}"/>
+        <SolidColorBrush x:Key="TabTexttColor" Color="{DynamicResource {x:Static SystemColors.ControlTextColorKey}}"/>
+        <SolidColorBrush x:Key="SelectedTabBackgroundColor" Color="{DynamicResource {x:Static SystemColors.ControlDarkDarkColorKey}}"/>
+        <SolidColorBrush x:Key="SelectedTabTexttColor" Color="White"/>
+        <SolidColorBrush x:Key="MouseOverTabBackgroundColor" Color="{DynamicResource {x:Static SystemColors.HighlightColorKey}}"/>
+        <SolidColorBrush x:Key="MouseOverTabTexttColor" Color="{DynamicResource {x:Static SystemColors.HighlightTextColorKey}}"/>
+        <SolidColorBrush x:Key="MouseOverCloseTabTexttColor" Color="Red"/>
+        <SolidColorBrush x:Key="RibbonColor" Color="{DynamicResource {x:Static SystemColors.HighlightColorKey}}"/>
+        <ItemsPanelTemplate x:Key="TabPanelTemplate">
+            <StackPanel IsItemsHost="True" Orientation="Horizontal"/>
+        </ItemsPanelTemplate>
+        <local:BrushColorConverter x:Key="BrushColorConverter"/>
+        <local:ChangeColorBrightness x:Key="ChangeColorBrightness"/>
+        <FontWeight x:Key="BoldFont">Bold</FontWeight>
+        <Style x:Key="ButtonFocusVisual">
+            <Setter Property="Control.Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Rectangle StrokeDashArray="1 2" StrokeThickness="1" Stroke="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" SnapsToDevicePixels="true" Margin="2"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="ButtonStyle" TargetType="{x:Type Button}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <DataTemplate x:Key="TabTemplate" DataType="local:Tab">
+            <Grid x:Name="tabBackground" MinHeight="17" MaxHeight="47" MinWidth="35" MaxWidth="150" Background="{Binding TabBackgroundColor, Converter={StaticResource BrushColorConverter}, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Button x:Name="tabButton" Content="{Binding TabTitle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderBrush="{x:Null}" Foreground="{Binding TabTextColor, Converter={StaticResource BrushColorConverter}, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}" Background="{x:Null}" BorderThickness="0" Style="{DynamicResource ButtonStyle}" MinWidth="27"/>
+                <Button x:Name="closeButton" Content="X" VerticalAlignment="Stretch" Width="Auto" Grid.Column="1" FontWeight="{DynamicResource BoldFont}" Foreground="{x:Null}" BorderBrush="{x:Null}" Background="{x:Null}" BorderThickness="0" Style="{DynamicResource ButtonStyle}" HorizontalContentAlignment="Center" MinWidth="8"/>
+            </Grid>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding Selected}" Value="True">
+                    <Setter Property="Foreground" TargetName="tabButton" Value="{Binding SelectedTabTextColor, Converter={StaticResource BrushColorConverter}, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}"/>
+                    <Setter Property="Background" TargetName="tabBackground" Value="{Binding SelectedTabBackgroundColor, Converter={StaticResource BrushColorConverter}, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}"/>
+                    <Setter Property="Foreground" TargetName="closeButton" Value="{Binding SelectedTabTextColor, Converter={StaticResource BrushColorConverter}, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}"/>
+                </DataTrigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" TargetName="tabButton" Value="{Binding MouseOverTabTextColor, Converter={StaticResource BrushColorConverter}, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}"/>
+                    <Setter Property="Background" TargetName="tabBackground" Value="{Binding MouseOverTabBackgroundColor, Converter={StaticResource BrushColorConverter}, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}"/>
+                    <Setter Property="Foreground" TargetName="closeButton" Value="{Binding MouseOverTabTextColor, Converter={StaticResource BrushColorConverter}, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True" SourceName="closeButton">
+                    <Setter Property="Background" TargetName="closeButton" Value="{Binding MouseOverTabBackgroundColor, ConverterParameter=1.25, Converter={StaticResource ChangeColorBrightness}, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}"/>
+                    <Setter Property="Foreground" TargetName="closeButton" Value="{Binding MouseOverCloseTabTextColor, Converter={StaticResource BrushColorConverter}, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="False" SourceName="closeButton">
+                    <Setter Property="Foreground" TargetName="closeButton" Value="{Binding MouseOverCloseTabTextColor, Converter={StaticResource BrushColorConverter}, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}"/>
+                    <Setter Property="Background" TargetName="closeButton" Value="{Binding MouseOverTabBackgroundColor, ConverterParameter=.75, Converter={StaticResource ChangeColorBrightness}, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="False" SourceName="tabButton">
+                    <Setter Property="Background" TargetName="tabBackground" Value="{Binding MouseOverTabBackgroundColor, ConverterParameter=.75, Converter={StaticResource ChangeColorBrightness}, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}"/>
+                    <Setter Property="Foreground" TargetName="tabButton" Value="{Binding MouseOverTabTextColor, Converter={StaticResource BrushColorConverter}, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}"/>
+                    <Setter Property="Foreground" TargetName="closeButton" Value="{Binding MouseOverTabTextColor, Converter={StaticResource BrushColorConverter}, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}"/>
+                </Trigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+        <GridView x:Key="TabView">
+            <GridViewColumn/>
+        </GridView>
+        <Style x:Key="NewTabButtonStyle" TargetType="{x:Type Button}">
+            <Setter Property="Padding" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border x:Name="border" Margin="0">
+                            <ContentPresenter x:Name="contentPresenter" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" Height="Auto" Width="Auto" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" TargetName="border" Value="{Binding MouseOverTabBackgroundColor, Converter={StaticResource BrushColorConverter}, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}"/>
+                                <Setter Property="TextBlock.Foreground" TargetName="contentPresenter" Value="{Binding MouseOverTabTextColor, Converter={StaticResource BrushColorConverter}, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
     <Grid>
-        <local:BetterTabControlBar Height="30" VerticalAlignment="Top"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="{Binding ActualWidth, ElementName=betterTabControl, Mode=OneWay}"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid Margin="0,0,0,3">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="3" MaxHeight="3" MinHeight="3"/>
+            </Grid.RowDefinitions>
+            <Grid Background="{Binding BarBackgroundColor, ElementName=betterTabControl}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="3"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <ItemsControl x:Name="tabs" Margin="0" ItemsPanel="{DynamicResource TabPanelTemplate}" ItemTemplate="{DynamicResource TabTemplate}" DataContext="{DynamicResource tab}"/>
+                <Button x:Name="newTab" Content="{Binding NewTabDisplayText, ElementName=betterTabControl}" Grid.Column="1" Style="{DynamicResource NewTabButtonStyle}" Height="27" MinWidth="10" FontWeight="Bold"/>
+
+            </Grid>
+            <Rectangle x:Name="ribbon" Fill="{Binding RibbonColor, Converter={StaticResource BrushColorConverter}, ElementName=betterTabControl}" Height="3" Margin="0,27,0,0"/>
+        </Grid>
+
+        <ContentControl x:Name="contentPanel" RenderTransformOrigin="0.5,0.5" Grid.Row="1" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
 
     </Grid>
 </UserControl>

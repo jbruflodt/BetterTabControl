@@ -13,21 +13,16 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace BetterTabs
+namespace BetterTabControlTest
 {
     /// <summary>
-    /// Interaction logic for NewTab.xaml
+    /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class NewTab : UserControl
+    public partial class MainWindow : Window
     {
-        public NewTab()
+        public MainWindow()
         {
             InitializeComponent();
-        }
-        public string DisplayText
-        {
-            get { return (string)GetValue(BetterTabControl.NewTabDisplayTextProperty); }
-            set { SetValue(BetterTabControl.NewTabDisplayTextProperty, value); }
         }
     }
 }

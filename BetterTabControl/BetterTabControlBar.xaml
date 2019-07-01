@@ -10,15 +10,6 @@
     <UserControl.Resources>
         <local:ChangeColorBrightness x:Key="ChangeColorBrightness"/>
         <local:BrushColorConverter x:Key="BrushColorConverter"/>
-        <System:String x:Key="NewTabDisplayText">+</System:String>
-        <Color x:Key="BarBackgroundColor"/>
-        <Color x:Key="TabBackgroundColor"/>
-        <Color x:Key="TabTexttColor"/>
-        <Color x:Key="SelectedTabBackgroundColor"/>
-        <Color x:Key="SelectedTabTexttColor"/>
-        <Color x:Key="MouseOverTabBackgroundColor"/>
-        <Color x:Key="MouseOverTabTexttColor"/>
-        <Color x:Key="MouseOverCloseTabTexttColor"/>
         <local:Tab x:Key="tab"/>
         <ControlTemplate x:Key="TabListTemplate" TargetType="{x:Type ListView}">
             <Grid>
@@ -96,7 +87,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="3" MaxHeight="3" MinHeight="3"/>
         </Grid.RowDefinitions>
-        <Grid>
+        <Grid Background="{Binding BarBackgroundColor, ElementName=betterTabControl}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="3"/>
@@ -106,7 +97,9 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <local:NewTab x:Name="newTab" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="1"/>
-            <ItemsControl x:Name="tabs" Margin="0" ItemTemplate="{DynamicResource TabTemplate}" ItemsPanel="{DynamicResource TabPanelTemplate}"/>
+            <ItemsControl x:Name="tabs" Margin="0" ItemsPanel="{DynamicResource TabPanelTemplate}">
+                <ItemsPresenter Height="27" VerticalAlignment="Top" Width="100"/>
+            </ItemsControl>
         </Grid>
         <Rectangle x:Name="ribbon" Fill="{Binding RibbonColor, Converter={StaticResource BrushColorConverter}, ElementName=betterTabControl}" Height="3" Margin="0,27,0,0"/>
     </Grid>
