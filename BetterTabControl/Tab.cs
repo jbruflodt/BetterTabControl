@@ -8,6 +8,7 @@ using System.ComponentModel;
 
 namespace BetterTabs
 {
+    [Serializable()]
     public class Tab : INotifyPropertyChanged, IComparer<Tab>
     {
         private string tabTitle;

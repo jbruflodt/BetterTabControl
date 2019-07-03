@@ -14,6 +14,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Reflection;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 
 namespace BetterTabs
 {
@@ -22,6 +24,7 @@ namespace BetterTabs
     /// </summary>
     public partial class BetterTabControl : UserControl
     {
+        private Type defaultContentType;
         public static readonly DependencyProperty NewTabDisplayTextProperty = DependencyProperty.RegisterAttached(
             "NewTabDisplayText",
             typeof(string),
@@ -36,9 +39,9 @@ namespace BetterTabs
             );
         public static readonly DependencyProperty TabsPropertty = DependencyProperty.RegisterAttached(
             "Tabs",
-            typeof(SortedSet<Tab>),
+            typeof(ObservableCollection<Tab>),
             typeof(BetterTabControl),
-            new FrameworkPropertyMetadata(new SortedSet<Tab>(), FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender)
+            new FrameworkPropertyMetadata(new ObservableCollection<Tab>(), FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender)
             );
         public static readonly DependencyProperty BarBackgroundColorProperty = DependencyProperty.RegisterAttached(
             "BarBackgroundColor",
@@ -138,17 +141,39 @@ namespace BetterTabs
             get { return (Color)GetValue(MouseOverCloseTabTextColorProperty); }
             set { SetValue(MouseOverCloseTabTextColorProperty, value); }
         }
-        public List<Tab> Tabs
+        public Type DefaultContentType
         {
             get
             {
-                return ((SortedSet<Tab>)GetValue(TabsPropertty)).ToList();
+                return defaultContentType;
             }
             set
             {
-                SetValue(TabsPropertty, new SortedSet<Tab>(value));
+                if(!value.GetTypeInfo().IsSubclassOf(typeof(Control)) && value != typeof(Control))
+                {
+                    throw new ArgumentException("DefaultContentType must be of type System.Windows.Controls.Control or derived from it");
+                }
+                else
+                {
+                    if(value.GetConstructor(new Type[] { }) == null)
+                        throw new ArgumentException("DefaultContentType must be of a type that has a parameterless constructor");
+                    else
+                        defaultContentType = value;
+                }
             }
         }
+        public ObservableCollection<Tab> Tabs
+        {
+            get
+            {
+                return (ObservableCollection<Tab>)GetValue(TabsPropertty);
+            }
+            set
+            {
+                SetValue(TabsPropertty,value);
+            }
+        }
+        public event EventHandler NewTabClick;
         public BetterTabControl()
         {
             InitializeComponent();
@@ -203,7 +228,24 @@ namespace BetterTabs
             BetterTabControl tabControl = (BetterTabControl)sender;
             tabControl.Resources["MouseOverCloseTabTextColor"] = e.NewValue;
         }
+        private void TabsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            Tabs.OrderBy((thisTab) => thisTab, new Tab());
+        }
+        private void TabsItemChanged(object sender, propert)
 
+        private void NewTab_Click(object sender, RoutedEventArgs e)
+        {
+            AddNewTab();
+            NewTabClick?.Invoke(this, new EventArgs());
+        }
+        public void AddNewTab()
+        {
+            Tab addedTab = new Tab();
+            if (DefaultContentType != null)
+                addedTab.TabContent = (Control)DefaultContentType.GetConstructor(new Type[] { }).Invoke(new object[] { });
+            Tabs.Add(addedTab);
+        }
     }
     public class ChangeColorBrightness : IValueConverter
     {
@@ -214,7 +256,8 @@ namespace BetterTabs
         }
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if(!parameter.GetType().GetTypeInfo().IsAssignableFrom(typeof(float)))
+            float changeValue = 0;
+            if(!parameter.GetType().GetTypeInfo().IsAssignableFrom(typeof(float)) && !float.TryParse(parameter.ToString(), out changeValue))
                 throw new ArgumentException("parameter must be assignable from float", "parameter");
             Color color = Colors.Transparent;
             if (targetType == null)
@@ -241,14 +284,44 @@ namespace BetterTabs
             else
                 color = ((SolidColorBrush)value).Color;
             if (targetType.GetTypeInfo().IsAssignableFrom(typeof(Color)))
-                return ChangeColor(color, (float)parameter);
+                return ChangeColor(color, changeValue);
             else
-                return new SolidColorBrush(ChangeColor(color, (float)parameter));
+                return new SolidColorBrush(ChangeColor(color, changeValue));
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            throw new NotImplementedException();
+            float changeValue = 0;
+            if (!parameter.GetType().GetTypeInfo().IsAssignableFrom(typeof(float)) && !float.TryParse(parameter.ToString(), out changeValue))
+                throw new ArgumentException("parameter must be assignable from float", "parameter");
+            Color color = Colors.Transparent;
+            if (targetType == null)
+            {
+                throw new ArgumentNullException("targetType");
+            }
+            if (!targetType.GetTypeInfo().IsAssignableFrom(typeof(Color)) && !targetType.GetTypeInfo().IsAssignableFrom(typeof(SolidColorBrush)))
+            {
+                throw new ArgumentException("targetType must be assignable from Color or SolidColorBrush", "targetType");
+            }
+            if (value == null)
+            {
+                if (targetType.GetTypeInfo().IsAssignableFrom(typeof(Color)))
+                    return color;
+                else
+                    return new SolidColorBrush(color);
+            }
+            if (!typeof(Color).GetTypeInfo().IsAssignableFrom(value.GetType()) && !typeof(SolidColorBrush).GetTypeInfo().IsAssignableFrom(value.GetType()))
+            {
+                throw new ArgumentException("value must be assignable to Color or SolidColorBrush", "value");
+            }
+            if (typeof(Color).GetTypeInfo().IsAssignableFrom(value.GetType()))
+                color = (Color)value;
+            else
+                color = ((SolidColorBrush)value).Color;
+            if (targetType.GetTypeInfo().IsAssignableFrom(typeof(Color)))
+                return ChangeColor(color, changeValue * -1);
+            else
+                return new SolidColorBrush(ChangeColor(color, changeValue * -1));
         }
     }
 }

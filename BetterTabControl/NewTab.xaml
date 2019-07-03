@@ -6,14 +6,14 @@
              xmlns:local="clr-namespace:BetterTabs"
              xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero" x:Name="newTab" x:Class="BetterTabs.NewTab"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800" MinHeight="17" MaxHeight="47" Height="27" MinWidth="10" Width="20">
+             d:DesignHeight="450" d:DesignWidth="800" MinHeight="17" MaxHeight="47" Height="27" MinWidth="20" Width="20" MaxWidth="50">
     <UserControl.Resources>
         <local:BrushColorConverter x:Key="BrushColorConverter"/>
     </UserControl.Resources>
     <Grid>
         <Button x:Name="newTabButton" Content="{Binding DisplayText, ElementName=newTab}" FontFamily="{DynamicResource {x:Static SystemFonts.MenuFontFamilyKey}}" FontWeight="Bold">
             <Button.Template>
-                <ControlTemplate TargetType="{x:Type ButtonBase}">
+                <ControlTemplate TargetType="{x:Type Button}">
                     <Border x:Name="border" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="0" VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
                         <ContentPresenter x:Name="contentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" ContentStringFormat="{TemplateBinding ContentStringFormat}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" Height="Auto" Width="Auto"/>
                     </Border>
@@ -22,7 +22,6 @@
                             <Setter Property="Background" TargetName="border" Value="{Binding MouseOverTabBackgroundColor, Converter={StaticResource BrushColorConverter}, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}"/>
                             <Setter Property="TextBlock.Foreground" TargetName="contentPresenter" Value="{Binding MouseOverTabTextColor, Converter={StaticResource BrushColorConverter}, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}"/>
                         </Trigger>
-
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Button.Template>

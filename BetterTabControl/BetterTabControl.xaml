@@ -88,10 +88,16 @@
                             <ContentPresenter x:Name="contentPresenter" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" Height="Auto" Width="Auto" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
+                            <Trigger Property="IsFocused" Value="False"/>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter Property="Background" TargetName="border" Value="{Binding MouseOverTabBackgroundColor, Converter={StaticResource BrushColorConverter}, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}"/>
                                 <Setter Property="TextBlock.Foreground" TargetName="contentPresenter" Value="{Binding MouseOverTabTextColor, Converter={StaticResource BrushColorConverter}, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}"/>
                             </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="TextBlock.Foreground" TargetName="contentPresenter" Value="{Binding MouseOverTabTextColor, Converter={StaticResource BrushColorConverter}, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}"/>
+                                <Setter Property="Background" TargetName="border" Value="{Binding MouseOverTabBackgroundColor, ConverterParameter=.75, Converter={StaticResource ChangeColorBrightness}, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}"/>
+                            </Trigger>
+                            <Trigger Property="IsFocused" Value="True"/>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
@@ -121,7 +127,7 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <ItemsControl x:Name="tabs" Margin="0" ItemsPanel="{DynamicResource TabPanelTemplate}" ItemTemplate="{DynamicResource TabTemplate}" DataContext="{DynamicResource tab}"/>
-                <Button x:Name="newTab" Content="{Binding NewTabDisplayText, ElementName=betterTabControl}" Grid.Column="1" Style="{DynamicResource NewTabButtonStyle}" Height="27" MinWidth="10" FontWeight="Bold"/>
+                <Button x:Name="newTab" Content="{Binding NewTabDisplayText, ElementName=betterTabControl}" Grid.Column="1" Style="{DynamicResource NewTabButtonStyle}" Height="27" MinWidth="20" FontWeight="Bold" MinHeight="17" MaxHeight="47" MaxWidth="50" FocusVisualStyle="{x:Null}" Click="NewTab_Click"/>
 
             </Grid>
             <Rectangle x:Name="ribbon" Fill="{Binding RibbonColor, Converter={StaticResource BrushColorConverter}, ElementName=betterTabControl}" Height="3" Margin="0,27,0,0"/>
