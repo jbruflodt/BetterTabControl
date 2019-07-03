@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
 using System.ComponentModel;
+using System.Windows.Controls;
 
 namespace BetterTabs
 {
@@ -95,7 +92,6 @@ namespace BetterTabs
             selected = value;
             NotifyPropertyChanged("Selected");
         }
-
         public int Compare(Tab x, Tab y)
         {
             if (x == null)
@@ -104,7 +100,40 @@ namespace BetterTabs
                 throw new ArgumentNullException("y");
             if (x.DisplayIndex == y.DisplayIndex && ((!x.HasMoved && !y.HasMoved) || (x.HasMoved && y.HasMoved)))
             {
-                if(x.HasMoved && y.HasMoved)
+                if (x.HasMoved && y.HasMoved)
+                {
+                    x.HasMoved = false;
+                    y.HasMoved = false;
+                }
+                return 0;
+            }
+            else if (x.DisplayIndex == y.DisplayIndex && x.HasMoved)
+            {
+                x.HasMoved = false;
+                return -1;
+            }
+            else if (x.DisplayIndex == y.DisplayIndex && y.HasMoved)
+            {
+                y.HasMoved = false;
+                return 1;
+            }
+            else
+            {
+                return x.DisplayIndex - y.DisplayIndex;
+            }
+        }
+    }
+    public class TabComparer : IComparer<Tab>
+    {
+        public int Compare(Tab x, Tab y)
+        {
+            if (x == null)
+                throw new ArgumentNullException("x");
+            if (y == null)
+                throw new ArgumentNullException("y");
+            if (x.DisplayIndex == y.DisplayIndex && ((!x.HasMoved && !y.HasMoved) || (x.HasMoved && y.HasMoved)))
+            {
+                if (x.HasMoved && y.HasMoved)
                 {
                     x.HasMoved = false;
                     y.HasMoved = false;

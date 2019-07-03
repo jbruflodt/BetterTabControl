@@ -16,6 +16,7 @@ using System.Windows.Shapes;
 using System.Reflection;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.ComponentModel;
 
 namespace BetterTabs
 {
@@ -59,7 +60,7 @@ namespace BetterTabs
             "TabTextColor",
             typeof(SolidColorBrush),
             typeof(BetterTabControl),
-            new FrameworkPropertyMetadata(SystemColors.ControlBrush, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender, new PropertyChangedCallback(OnTabTextColorChanged))
+            new FrameworkPropertyMetadata(SystemColors.ControlTextBrush, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender, new PropertyChangedCallback(OnTabTextColorChanged))
             );
         public static readonly DependencyProperty SelectedTabBackgroundColorProperty = DependencyProperty.RegisterAttached(
             "SelectedTabBackgroundColor",
@@ -230,9 +231,12 @@ namespace BetterTabs
         }
         private void TabsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            Tabs.OrderBy((thisTab) => thisTab, new Tab());
+            Tabs.OrderBy((thisTab) => thisTab, new TabComparer());
         }
-        private void TabsItemChanged(object sender, propert)
+        private void TabsItemChanged(object sender, PropertyChangedEventArgs e)
+        {
+            Tabs.OrderBy((thisTab) => thisTab, new TabComparer());
+        }
 
         private void NewTab_Click(object sender, RoutedEventArgs e)
         {
