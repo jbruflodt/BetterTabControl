@@ -2,86 +2,107 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Controls;
+using System.Windows.Data;
+using System.Reflection;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.Windows.Media;
+using System.Globalization;
+using System.Linq;
+using System.Windows;
 
 namespace BetterTabs
 {
     [Serializable()]
-    public class Tab : INotifyPropertyChanged, IComparer<Tab>
+    public class Tab : DependencyObject, INotifyPropertyChanged, IComparer<Tab>
     {
+        public static readonly DependencyProperty TabTitleProperty = DependencyProperty.RegisterAttached(
+            "TabTitle",
+            typeof(string),
+            typeof(Tab),
+            new FrameworkPropertyMetadata("Untitled", FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender, new PropertyChangedCallback(OnTabTitleChanged))
+            );
+        public static readonly DependencyProperty TabContentProperty = DependencyProperty.RegisterAttached(
+            "TabContent",
+            typeof(Control),
+            typeof(Tab),
+            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender, new PropertyChangedCallback(OnTabContentChanged))
+            );
+        public static readonly DependencyProperty IDProperty = DependencyProperty.RegisterAttached(
+            "ID",
+            typeof(Guid),
+            typeof(Tab),
+            new FrameworkPropertyMetadata(Guid.Empty, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender, new PropertyChangedCallback(OnIDChanged))
+            );
+        public static readonly DependencyProperty DisplayIndexProperty = DependencyProperty.RegisterAttached(
+            "DisplayIndex",
+            typeof(int),
+            typeof(Tab),
+            new FrameworkPropertyMetadata(0, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender, new PropertyChangedCallback(OnDisplayIndexChanged))
+            );
+        public static readonly DependencyProperty SelectedProperty = DependencyProperty.RegisterAttached(
+            "Selected",
+            typeof(bool),
+            typeof(Tab),
+            new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender, new PropertyChangedCallback(OnSelectedChanged))
+            );
         private string tabTitle;
         private Control tabContent;
         private Guid id;
         private int displayIndex;
-        private bool hasMoved;
+        private int previousIndex;
         private bool selected;
 
         public string TabTitle
         {
-            get
-            {
-                return tabTitle;
-            }
-            set
-            {
-                tabTitle = value;
-                NotifyPropertyChanged("TabTitle");
-            }
+            get { return (string)GetValue(TabTitleProperty); }
+            set { SetValue(TabTitleProperty, value); }
         }
         public Control TabContent
         {
-            get
-            {
-                return tabContent;
-            }
-            set
-            {
-                tabContent = value;
-                NotifyPropertyChanged("TabContent");
-            }
+            get { return (Control)GetValue(TabContentProperty); }
+            set { SetValue(TabContentProperty, value); }
         }
         public Guid ID
         {
-            get
-            {
-                return id;
-            }
+            get { return (Guid)GetValue(IDProperty); }
         }
         public int DisplayIndex
         {
-            get
-            {
-                return displayIndex;
-            }
+            get { return (int)GetValue(DisplayIndexProperty); }
             set
             {
-                displayIndex = value;
-                NotifyPropertyChanged("DisplayIndex");
+                previousIndex = (int)GetValue(DisplayIndexProperty);
+                SetValue(DisplayIndexProperty, value);
             }
         }
         public bool Selected
         {
-            get
-            {
-                return selected;
-            }
+            get { return (bool)GetValue(SelectedProperty); }
         }
 
-        internal bool HasMoved { get => hasMoved; set => hasMoved = value; }
+        internal int PreviousIndex { get => previousIndex; set => previousIndex = value; }
 
-        public Tab(string tabTitle, Control tabContent)
+        public event CancelableTabEventHandler CloseButtonClicked;
+        public event CancelableTabEventHandler TabSelected;
+        public event EventHandler TabClosed;
+
+        public Tab(string tabTitle, Control tabContent) : base()
         {
-            this.tabTitle = tabTitle;
-            this.tabContent = tabContent;
-            id = Guid.NewGuid();
+            this.TabTitle = tabTitle;
+            this.TabContent = tabContent;
+            this.SetID(Guid.NewGuid());
+            previousIndex = -1;
         }
-        public Tab()
+        public Tab() : base()
         {
-            this.tabTitle = "Untitled";
-            this.tabContent = null;
-            id = Guid.NewGuid();
+            this.TabTitle = "Untitled";
+            this.TabContent = null;
+            this.SetID(Guid.NewGuid());
+            previousIndex = -1;
         }
-
         public event PropertyChangedEventHandler PropertyChanged;
+        public event EventHandler SelectChanged;
 
         private void NotifyPropertyChanged(string propertyName)
         {
@@ -89,8 +110,48 @@ namespace BetterTabs
         }
         internal void SetSelected(bool value)
         {
-            selected = value;
-            NotifyPropertyChanged("Selected");
+            if ((bool)GetValue(SelectedProperty) != value)
+            {
+                SetValue(SelectedProperty, value);
+                SelectChanged?.Invoke(this, new EventArgs());
+            }
+        }
+        private void SetID(Guid newID)
+        {
+            SetValue(IDProperty, newID);
+        }
+        private static void OnTabTitleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            Tab localTab = (Tab)sender;
+            localTab.tabTitle = (string)e.NewValue;
+        }
+        private static void OnTabContentChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            Tab localTab = (Tab)sender;
+            localTab.tabContent = (Control)e.NewValue;
+        }
+        private static void OnIDChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            Tab localTab = (Tab)sender;
+            localTab.id = (Guid)e.NewValue;
+        }
+        private static void OnDisplayIndexChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            Tab localTab = (Tab)sender;
+            localTab.displayIndex = (int)e.NewValue;
+        }
+        private static void OnSelectedChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            Tab localTab = (Tab)sender;
+            localTab.selected = (bool)e.NewValue;
+        }
+        internal void OnCloseButtonClick(CancelableTabEventArgs e)
+        {
+            CloseButtonClicked?.Invoke(this, e);
+        }
+        internal void OnSelected(CancelableTabEventArgs e)
+        {
+            TabSelected?.Invoke(this, e);
         }
         public int Compare(Tab x, Tab y)
         {
@@ -98,29 +159,26 @@ namespace BetterTabs
                 throw new ArgumentNullException("x");
             if (y == null)
                 throw new ArgumentNullException("y");
-            if (x.DisplayIndex == y.DisplayIndex && ((!x.HasMoved && !y.HasMoved) || (x.HasMoved && y.HasMoved)))
+            if (x.DisplayIndex == y.DisplayIndex && x.previousIndex == y.previousIndex)
             {
-                if (x.HasMoved && y.HasMoved)
-                {
-                    x.HasMoved = false;
-                    y.HasMoved = false;
-                }
                 return 0;
             }
-            else if (x.DisplayIndex == y.DisplayIndex && x.HasMoved)
+            else if (x.DisplayIndex == y.DisplayIndex && x.previousIndex > y.previousIndex)
             {
-                x.HasMoved = false;
                 return -1;
             }
-            else if (x.DisplayIndex == y.DisplayIndex && y.HasMoved)
+            else if (x.DisplayIndex == y.DisplayIndex && x.previousIndex < y.previousIndex)
             {
-                y.HasMoved = false;
                 return 1;
             }
             else
             {
                 return x.DisplayIndex - y.DisplayIndex;
             }
+        }
+        public void Close()
+        {
+            TabClosed?.Invoke(this, new EventArgs());
         }
     }
     public class TabComparer : IComparer<Tab>
@@ -131,23 +189,16 @@ namespace BetterTabs
                 throw new ArgumentNullException("x");
             if (y == null)
                 throw new ArgumentNullException("y");
-            if (x.DisplayIndex == y.DisplayIndex && ((!x.HasMoved && !y.HasMoved) || (x.HasMoved && y.HasMoved)))
+            if (x.DisplayIndex == y.DisplayIndex && x.PreviousIndex == y.PreviousIndex)
             {
-                if (x.HasMoved && y.HasMoved)
-                {
-                    x.HasMoved = false;
-                    y.HasMoved = false;
-                }
                 return 0;
             }
-            else if (x.DisplayIndex == y.DisplayIndex && x.HasMoved)
+            else if (x.DisplayIndex == y.DisplayIndex && x.PreviousIndex > y.PreviousIndex)
             {
-                x.HasMoved = false;
                 return -1;
             }
-            else if (x.DisplayIndex == y.DisplayIndex && y.HasMoved)
+            else if (x.DisplayIndex == y.DisplayIndex && x.PreviousIndex < y.PreviousIndex)
             {
-                y.HasMoved = false;
                 return 1;
             }
             else

@@ -26,6 +26,9 @@ namespace BetterTabs
     public partial class BetterTabControl : UserControl
     {
         private Type defaultContentType;
+        private Tab draggedTab;
+        private bool doingDragDrop;
+        private Point? dragStart;
         public static readonly DependencyProperty NewTabDisplayTextProperty = DependencyProperty.RegisterAttached(
             "NewTabDisplayText",
             typeof(string),
@@ -97,50 +100,87 @@ namespace BetterTabs
             get { return (string)GetValue(NewTabDisplayTextProperty); }
             set { SetValue(NewTabDisplayTextProperty, value); }
         }
-        public Color RibbonColor
+        public SolidColorBrush RibbonColor
         {
-            get { return (Color)GetValue(RibbonColorProperty); }
+            get { return (SolidColorBrush)GetValue(RibbonColorProperty); }
             set { SetValue(RibbonColorProperty, value); }
         }
-        public Color BarBackgroundColor
+        public SolidColorBrush BarBackgroundColor
         {
-            get { return (Color)GetValue(BarBackgroundColorProperty); }
+            get { return (SolidColorBrush)GetValue(BarBackgroundColorProperty); }
             set { SetValue(BarBackgroundColorProperty, value); }
         }
-        public Color TabBackgroundColor
+        public SolidColorBrush TabBackgroundColor
         {
-            get { return (Color)GetValue(TabBackgroundColorProperty); }
+            get { return (SolidColorBrush)GetValue(TabBackgroundColorProperty); }
             set { SetValue(TabBackgroundColorProperty, value); }
         }
-        public Color TabTextColor
+        public SolidColorBrush TabTextColor
         {
-            get { return (Color)GetValue(TabTextColorProperty); }
+            get { return (SolidColorBrush)GetValue(TabTextColorProperty); }
             set { SetValue(TabTextColorProperty, value); }
         }
-        public Color SelectedTabBackgroundColor
+        public SolidColorBrush SelectedTabBackgroundColor
         {
-            get { return (Color)GetValue(SelectedTabBackgroundColorProperty); }
+            get { return (SolidColorBrush)GetValue(SelectedTabBackgroundColorProperty); }
             set { SetValue(SelectedTabBackgroundColorProperty, value); }
         }
-        public Color SelectedTabTextColor
+        public SolidColorBrush SelectedTabTextColor
         {
-            get { return (Color)GetValue(SelectedTabTextColorProperty); }
+            get { return (SolidColorBrush)GetValue(SelectedTabTextColorProperty); }
             set { SetValue(SelectedTabTextColorProperty, value); }
         }
-        public Color MouseOverTabBackgroundColor
+        public SolidColorBrush MouseOverTabBackgroundColor
         {
-            get { return (Color)GetValue(MouseOverTabBackgroundColorProperty); }
+            get { return (SolidColorBrush)GetValue(MouseOverTabBackgroundColorProperty); }
             set { SetValue(MouseOverTabBackgroundColorProperty, value); }
         }
-        public Color MouseOverTabTextColor
+        public SolidColorBrush MouseOverTabTextColor
         {
-            get { return (Color)GetValue(MouseOverTabTextColorProperty); }
+            get { return (SolidColorBrush)GetValue(MouseOverTabTextColorProperty); }
             set { SetValue(MouseOverTabTextColorProperty, value); }
         }
-        public Color MouseOverCloseTabTextColor
+        public SolidColorBrush MouseOverCloseTabTextColor
         {
-            get { return (Color)GetValue(MouseOverCloseTabTextColorProperty); }
+            get { return (SolidColorBrush)GetValue(MouseOverCloseTabTextColorProperty); }
             set { SetValue(MouseOverCloseTabTextColorProperty, value); }
+        }
+        public Tab SelectedTab
+        {
+            get
+            {
+                foreach (Tab tempTab in Tabs)
+                {
+                    if (tempTab.Selected)
+                        return tempTab;
+                }
+                return null;
+            }
+        }
+        public int SelectedIndex
+        {
+            get
+            {
+                for(int x = 0; x < Tabs.Count; x++)
+                {
+                    Tab tempTab = Tabs[x];
+                    if (tempTab.Selected)
+                        return x;
+                }
+                return -1;
+            }
+        }
+        public Control SelectedContent
+        {
+            get
+            {
+                foreach (Tab tempTab in Tabs)
+                {
+                    if (tempTab.Selected)
+                        return tempTab.TabContent;
+                }
+                return null;
+            }
         }
         public Type DefaultContentType
         {
@@ -150,13 +190,13 @@ namespace BetterTabs
             }
             set
             {
-                if(!value.GetTypeInfo().IsSubclassOf(typeof(Control)) && value != typeof(Control))
+                if (!value.GetTypeInfo().IsSubclassOf(typeof(Control)) && value != typeof(Control))
                 {
                     throw new ArgumentException("DefaultContentType must be of type System.Windows.Controls.Control or derived from it");
                 }
                 else
                 {
-                    if(value.GetConstructor(new Type[] { }) == null)
+                    if (value.GetConstructor(new Type[] { }) == null)
                         throw new ArgumentException("DefaultContentType must be of a type that has a parameterless constructor");
                     else
                         defaultContentType = value;
@@ -171,13 +211,15 @@ namespace BetterTabs
             }
             set
             {
-                SetValue(TabsPropertty,value);
+                SetValue(TabsPropertty, value);
             }
         }
         public event EventHandler NewTabClick;
+        public event EventHandler AllTabsClosed;
         public BetterTabControl()
         {
             InitializeComponent();
+            Tabs.CollectionChanged += TabsCollectionChanged;
         }
         private static void OnNewTabDisplayTextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
@@ -231,13 +273,42 @@ namespace BetterTabs
         }
         private void TabsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            Tabs.OrderBy((thisTab) => thisTab, new TabComparer());
+            ReindexTabs();
+            if(e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                if(e.OldItems.Count > 0)
+                {
+                    foreach(Tab thisTab in e.OldItems)
+                    {
+                        if(thisTab.Selected)
+                        {
+                            thisTab.SetSelected(false);
+                            if (thisTab.DisplayIndex > 0 && Tabs.Count > thisTab.DisplayIndex - 1)
+                                Tabs[thisTab.DisplayIndex - 1].SetSelected(true);
+                            else if (thisTab.DisplayIndex == 0 && Tabs.Count > 0)
+                                Tabs[0].SetSelected(true);
+                            else if (Tabs.Count > 0)
+                                Tabs[Tabs.Count - 1].SetSelected(true);
+                        }
+                    }
+                }
+            }
         }
         private void TabsItemChanged(object sender, PropertyChangedEventArgs e)
         {
-            Tabs.OrderBy((thisTab) => thisTab, new TabComparer());
+            ReindexTabs();
         }
-
+        private void ReindexTabs()
+        {
+            if (!doingDragDrop)
+            {
+                Tabs.OrderBy((thisTab) => thisTab, new TabComparer());
+                for (int x = 0; x < Tabs.Count; x++)
+                {
+                    Tabs[x].DisplayIndex = x;
+                }
+            }
+        }
         private void NewTab_Click(object sender, RoutedEventArgs e)
         {
             AddNewTab();
@@ -250,13 +321,226 @@ namespace BetterTabs
                 addedTab.TabContent = (Control)DefaultContentType.GetConstructor(new Type[] { }).Invoke(new object[] { });
             Tabs.Add(addedTab);
         }
+        public void ClearSelected()
+        {
+            foreach (Tab tempTab in Tabs)
+            {
+                if (tempTab.Selected)
+                    tempTab.SetSelected(false);
+            }
+        }
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            Tab thisTab = (Tab)((FrameworkElement)sender).DataContext;
+            CancelableTabEventArgs eventArgs = new CancelableTabEventArgs();
+            thisTab.OnCloseButtonClick(eventArgs);
+            if (!eventArgs.Cancel)
+            {
+                thisTab.Close();
+                this.Tabs.Remove(thisTab);
+                if (Tabs.Count <= 0)
+                {
+                    if (AllTabsClosed != null)
+                        AllTabsClosed(this, new EventArgs());
+                    else
+                        AddNewTab();
+                }
+            }
+        }
+
+        private void TabBackground_MouseEnter(object sender, MouseEventArgs e)
+        {
+            Tab thisTab = (Tab)((FrameworkElement)sender).DataContext;
+            if (draggedTab != null)
+            {
+                int draggedIndex = draggedTab.DisplayIndex;
+                doingDragDrop = false;
+                draggedTab.DisplayIndex = thisTab.DisplayIndex;
+                doingDragDrop = true;
+                thisTab.DisplayIndex = draggedIndex;
+            }
+        }
+
+        private void BetterTabControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (Tabs.Count <= 0)
+                AddNewTab();
+        }
+
+        private void TabButton_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            Button senderButton = (Button)sender;
+            Tab thisTab = (Tab)senderButton.DataContext;
+            if (senderButton.IsEnabled)
+            {
+                CancelableTabEventArgs eventArgs = new CancelableTabEventArgs();
+                thisTab.OnSelected(eventArgs);
+                if (!eventArgs.Cancel)
+                {
+                    if (!thisTab.Selected)
+                    {
+                        foreach (Tab tempTab in Tabs)
+                        {
+                            if (tempTab.Selected)
+                                tempTab.SetSelected(false);
+                        }
+                        thisTab.SetSelected(true);
+                    }
+                    draggedTab = thisTab;
+                    dragStart = e.GetPosition(null);
+                }
+            }
+        }
+
+        private void BetterTabControl_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            draggedTab = null;
+            dragStart = null;
+        }
+
+        private void BetterTabControl_PreviewMouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Released)
+            {
+                draggedTab = null;
+                dragStart = null;
+            }
+        }
+
+        private double DragDistance(Point start, Point end)
+        {
+            return Math.Sqrt(Math.Pow((end.X - start.X), 2) + Math.Pow((end.Y - start.Y), 2));
+        }
+        private void TabsPanel_PreviewMouseMove(object sender, MouseEventArgs e)
+        {
+            IInputElement inputElement = tabsPanel.InputHitTest(e.GetPosition(tabsPanel));
+            if (dragStart != null && DragDistance(dragStart.Value, e.GetPosition(null)) > SystemParameters.MinimumHorizontalDragDistance)
+            {
+                if (draggedTab != null)
+                {
+                    doingDragDrop = true;
+                    Tabs.Remove(draggedTab);
+                    DragDropEffects dragResult = DragDrop.DoDragDrop(this, draggedTab, DragDropEffects.Move);
+                    doingDragDrop = false;
+                    if (dragResult == DragDropEffects.None)
+                    {
+                        Tabs.Add(draggedTab);
+                    }
+                    else
+                    {
+                        Tabs.OrderBy((thisTab) => thisTab, new TabComparer());
+                        for (int x = 0; x < Tabs.Count; x++)
+                        {
+                            Tabs[x].DisplayIndex = x;
+                        }
+                    }
+                    draggedTab = null;
+                }
+            }
+        }
+
+        private void TabBackground_PreviewDragOver(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(typeof(Tab)))
+            {
+                Tab thisTab = (Tab)((FrameworkElement)sender).DataContext;
+                Tab localDraggedTab = (Tab)e.Data.GetData(typeof(Tab));
+                localDraggedTab.DisplayIndex = thisTab.DisplayIndex;
+                ClearSelected();
+                localDraggedTab.SetSelected(true);
+                if (!Tabs.Contains(localDraggedTab))
+                    Tabs.Add(localDraggedTab);
+                e.Effects = DragDropEffects.Move;
+            }
+        }
+
+        private void TabsGrid_PreviewDrop(object sender, DragEventArgs e)
+        {
+            e.Effects = DragDropEffects.Move;
+        }
+
+        private void TabsGrid_PreviewDragOver(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(typeof(Tab)))
+            {
+                IInputElement hitElement = tabsGrid.InputHitTest(e.GetPosition(tabsGrid));
+                if (hitElement == newTab || hitElement == tabsGrid)
+                {
+                    Tab localDraggedTab = (Tab)e.Data.GetData(typeof(Tab));
+                    localDraggedTab.DisplayIndex = Tabs.Count - 1;
+                    ClearSelected();
+                    localDraggedTab.SetSelected(true);
+                    if(!Tabs.Contains(localDraggedTab))
+                        Tabs.Add(localDraggedTab);
+                    e.Effects = DragDropEffects.Move;
+                }
+            }
+        }
+
+        private void TabsGrid_PreviewDragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(typeof(Tab)))
+            {
+                e.Effects = DragDropEffects.Move;
+            }
+        }
+
+        private void TabsGrid_PreviewDragLeave(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(typeof(Tab)))
+            {
+                Tab localDraggedTab = (Tab)e.Data.GetData(typeof(Tab));
+                if (Tabs.Contains(localDraggedTab))
+                {
+                    Tabs.Remove(localDraggedTab);
+                }
+            }
+        }
     }
+    public class CancelableTabEventArgs : EventArgs
+    {
+        private bool cancel;
+
+        public CancelableTabEventArgs()
+        {
+            cancel = false;
+        }
+
+        public bool Cancel { get => cancel; set => cancel = value; }
+    }
+    public delegate void CancelableTabEventHandler(object sender, CancelableTabEventArgs e);
     public class ChangeColorBrightness : IValueConverter
     {
-        private Color ChangeColor(Color color, float factor)
+        /// <summary>
+        /// Creates color with corrected brightness.
+        /// </summary>
+        /// <param name="color">Color to correct.</param>
+        /// <param name="correctionFactor">The brightness correction factor. Must be between -1 and 1. 
+        /// Negative values produce darker colors.</param>
+        /// <returns>
+        /// Corrected <see cref="Color"/> structure.
+        /// </returns>
+        public Color ChangeColor(Color color, float correctionFactor)
         {
-            return Color.FromArgb(color.A,
-                (byte)(color.R * factor), (byte)(color.G * factor), (byte)(color.B * factor));
+            float red = (float)color.R;
+            float green = (float)color.G;
+            float blue = (float)color.B;
+
+            if (correctionFactor < 0)
+            {
+                correctionFactor = 1 + correctionFactor;
+                red *= correctionFactor;
+                green *= correctionFactor;
+                blue *= correctionFactor;
+            }
+            else
+            {
+                red = (255 - red) * correctionFactor + red;
+                green = (255 - green) * correctionFactor + green;
+                blue = (255 - blue) * correctionFactor + blue;
+            }
+
+            return Color.FromArgb(color.A, (byte)red, (byte)green, (byte)blue);
         }
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
