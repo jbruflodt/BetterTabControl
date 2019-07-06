@@ -214,7 +214,8 @@ namespace BetterTabs
                 SetValue(TabsPropertty, value);
             }
         }
-        public event EventHandler NewTabClick;
+        public event EventHandler AddingNewTab;
+        public event EventHandler AddedNewTab;
         public event EventHandler AllTabsClosed;
         public BetterTabControl()
         {
@@ -312,14 +313,18 @@ namespace BetterTabs
         private void NewTab_Click(object sender, RoutedEventArgs e)
         {
             AddNewTab();
-            NewTabClick?.Invoke(this, new EventArgs());
         }
         public void AddNewTab()
         {
-            Tab addedTab = new Tab();
-            if (DefaultContentType != null)
-                addedTab.TabContent = (Control)DefaultContentType.GetConstructor(new Type[] { }).Invoke(new object[] { });
-            Tabs.Add(addedTab);
+            AddingNewTab?.Invoke(this, new EventArgs());
+            if (AddingNewTab == null)
+            {
+                Tab addedTab = new Tab();
+                if (DefaultContentType != null)
+                    addedTab.TabContent = (Control)DefaultContentType.GetConstructor(new Type[] { }).Invoke(new object[] { });
+                Tabs.Add(addedTab);
+            }
+            AddedNewTab?.Invoke(this, new EventArgs());
         }
         public void ClearSelected()
         {
