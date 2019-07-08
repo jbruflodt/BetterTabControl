@@ -29,7 +29,13 @@
                         <Grid>
                             <Themes:DataGridHeaderBorder BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" IsClickable="{TemplateBinding CanUserSort}" IsPressed="{TemplateBinding IsPressed}" IsHovered="{TemplateBinding IsMouseOver}" Padding="{TemplateBinding Padding}" SortDirection="{TemplateBinding SortDirection}" SeparatorBrush="{TemplateBinding SeparatorBrush}" SeparatorVisibility="{TemplateBinding SeparatorVisibility}">
                                 <Expander Header="{TemplateBinding Content}" HorizontalAlignment="Center" Height="Auto" VerticalAlignment="Center" Width="Auto" Style="{DynamicResource ExpanderStyle1}">
-                                    <Grid Background="#FFE5E5E5"/>
+                                    <Grid Background="#FFE5E5E5">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="2*"/>
+                                            <RowDefinition Height="19*"/>
+                                        </Grid.RowDefinitions>
+                                        <ListBox HorizontalAlignment="Stretch" Height="Auto" Margin="0" VerticalAlignment="Stretch" Width="Auto" Grid.Row="1"/>
+                                    </Grid>
                                 </Expander>
                             </Themes:DataGridHeaderBorder>
                             <Thumb x:Name="PART_LeftHeaderGripper" HorizontalAlignment="Left" Style="{StaticResource ColumnHeaderGripperStyle}"/>
@@ -307,7 +313,7 @@
         </Style>
     </Window.Resources>
     <Grid DataContext="{Binding Source={StaticResource SampleDataSource}}" d:DataContext="{Binding Source={StaticResource SampleDataSource}}">
-        <DataGrid ItemsSource="{Binding Collection}" ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}">
+        <DataGrid x:Name="DataGrid" ItemsSource="{Binding Collection}" ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}">
             <DataGrid.DataContext>
                 <SampleDataSource:SampleDataSource/>
             </DataGrid.DataContext>
