@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:BetterTabs"
              xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero" xmlns:SampleDataSource="clr-namespace:Expression.Blend.SampleData.SampleDataSource" xmlns:Themes1="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2" x:Class="BetterTabs.BetterDataGrid"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800" ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}">
+             d:DesignHeight="450" d:DesignWidth="800" ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}" AlternatingRowBackground="#FFC0FFC0">
     <DataGrid.Resources>
         <local:BoolVisibilityConverter x:Key="BoolVisibilityConverter"/>
         <local:SortDirectionConverter x:Key="SortDirectionConverter"/>
@@ -323,15 +323,15 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type DataGridColumnHeader}">
-                        <Grid>
+                        <Grid x:Name="grid">
                             <Themes1:DataGridHeaderBorder BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" IsClickable="{TemplateBinding CanUserSort}" IsPressed="{TemplateBinding IsPressed}" IsHovered="{TemplateBinding IsMouseOver}" Padding="{TemplateBinding Padding}" SortDirection="{TemplateBinding SortDirection}" SeparatorBrush="{TemplateBinding SeparatorBrush}" SeparatorVisibility="{TemplateBinding SeparatorVisibility}">
-                                <Grid HorizontalAlignment="Stretch" Height="Auto" VerticalAlignment="Stretch" Width="Auto">
+                                <Grid x:Name="HeaderGrid" HorizontalAlignment="Stretch" Height="Auto" VerticalAlignment="Stretch" Width="Auto">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="100*"/>
+                                        <ColumnDefinition Width="20"/>
                                     </Grid.ColumnDefinitions>
                                     <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Margin="5,5.5"/>
-                                    <Button x:Name="FilterButton" Content="" HorizontalAlignment="Left" VerticalAlignment="Top" Width="20" Grid.Column="1" BorderBrush="{x:Null}" Foreground="{x:Null}" Visibility="{Binding AutoFilterEnabled, Converter={StaticResource BoolVisibilityConverter}, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterDataGrid}}}" Tag="{Binding DisplayIndex, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGridColumnHeader}}}" Click="FilterButton_Click">
+                                    <Button x:Name="FilterButton" Content="" HorizontalAlignment="Right" VerticalAlignment="Center" Width="20" Grid.Column="1" BorderBrush="{x:Null}" Foreground="{x:Null}" Visibility="{Binding AutoFilterEnabled, Converter={StaticResource BoolVisibilityConverter}, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterDataGrid}}}" Tag="{Binding ElementName=FilterPopup, Mode=OneWay}" Click="FilterButton_Click" Style="{DynamicResource FilterButtonStyle}">
                                         <Button.Background>
                                             <ImageBrush ImageSource="FilteredObject13400_128x128.png"/>
                                         </Button.Background>
@@ -340,14 +340,57 @@
                             </Themes1:DataGridHeaderBorder>
                             <Thumb x:Name="PART_LeftHeaderGripper" HorizontalAlignment="Left" Style="{StaticResource ColumnHeaderGripperStyle}"/>
                             <Thumb x:Name="PART_RightHeaderGripper" HorizontalAlignment="Right" Style="{StaticResource ColumnHeaderGripperStyle}"/>
-                            <Popup x:Name="FilterPopup" Grid.Column="1">
+                            <Popup x:Name="FilterPopup" Grid.Column="1" Width="{Binding ActualWidth, ElementName=grid, Mode=OneWay}" StaysOpen="False" Closed="FilterPopup_Closed">
                                 <Grid Background="#FFE5E5E5" Width="Auto">
-                                    <ListBox x:Name="FilterList" HorizontalAlignment="Stretch" Height="Auto" VerticalAlignment="Stretch">
-                                        <CheckBox x:Name="AllCheckBox" Content="All" FontWeight="Bold" Checked="AllCheckBox_Checked" Unchecked="AllCheckBox_Unchecked"/>
-                                    </ListBox>
+                                    <ListBox x:Name="FilterList" HorizontalAlignment="Stretch" Height="Auto" VerticalAlignment="Stretch" Width="{Binding ActualWidth, ElementName=grid, Mode=OneWay}" ItemsSource="{Binding FilterPopupContent, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterDataGrid}}}"/>
                                 </Grid>
                             </Popup>
                         </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="FocusVisual">
+            <Setter Property="Control.Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Rectangle Margin="2" SnapsToDevicePixels="true" Stroke="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" StrokeThickness="1" StrokeDashArray="1 2"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <SolidColorBrush x:Key="Button.Static.Background" Color="#FFDDDDDD"/>
+        <SolidColorBrush x:Key="Button.Static.Border" Color="#FF707070"/>
+        <SolidColorBrush x:Key="Button.MouseOver.Background" Color="#FFBEE6FD"/>
+        <SolidColorBrush x:Key="Button.MouseOver.Border" Color="#FF3C7FB1"/>
+        <SolidColorBrush x:Key="Button.Pressed.Background" Color="#FFC4E5F6"/>
+        <SolidColorBrush x:Key="Button.Pressed.Border" Color="#FF2C628B"/>
+        <SolidColorBrush x:Key="Button.Disabled.Background" Color="#FFF4F4F4"/>
+        <SolidColorBrush x:Key="Button.Disabled.Border" Color="#FFADB2B5"/>
+        <SolidColorBrush x:Key="Button.Disabled.Foreground" Color="#FF838383"/>
+        <Style x:Key="FilterButtonStyle" TargetType="{x:Type Button}">
+            <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
+            <Setter Property="Background" Value="{StaticResource Button.Static.Background}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource Button.Static.Border}"/>
+            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="true">
+                            <ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsDefaulted" Value="true">
+                                <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="true"/>
+                            <Trigger Property="IsPressed" Value="true"/>
+                            <Trigger Property="IsEnabled" Value="false"/>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>

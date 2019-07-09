@@ -50,21 +50,29 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AutoFilterDataGrid.xaml.cs">
+      <DependentUpon>AutoFilterDataGrid.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="BetterDataGrid.xaml.cs">
+      <DependentUpon>BetterDataGrid.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FilterableDataSource.cs" />
     <Compile Include="FilterableDataTable.cs" />
     <Compile Include="FilterPopup.xaml.cs">
       <DependentUpon>FilterPopup.xaml</DependentUpon>
     </Compile>
-    <Compile Include="SampleData\SampleDataSource1\SampleDataSource1.xaml.cs" />
-    <Compile Include="SampleData\SampleDataSource\SampleDataSource.xaml.cs" />
-    <Compile Include="UserControl1.xaml.cs">
-      <DependentUpon>UserControl1.xaml</DependentUpon>
+    <Compile Include="NewDataGrid.xaml.cs">
+      <DependentUpon>NewDataGrid.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UserControl2.xaml.cs">
-      <DependentUpon>UserControl2.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UserControl4.xaml.cs">
-      <DependentUpon>UserControl4.xaml</DependentUpon>
-    </Compile>
+    <None Include="SampleData\SampleDataSource\SampleDataSource.xsd" />
+    <Page Include="AutoFilterDataGrid.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="BetterDataGrid.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="BetterTabControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -79,6 +87,7 @@
     <Compile Include="NewTab.xaml.cs">
       <DependentUpon>NewTab.xaml</DependentUpon>
     </Compile>
+    <Compile Include="SampleData\SampleDataSource\SampleDataSource.xaml.cs" />
     <Compile Include="Tab.cs" />
     <Compile Include="BetterTabControlBar.xaml.cs">
       <DependentUpon>BetterTabControlBar.xaml</DependentUpon>
@@ -88,13 +97,13 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="NewTab.xaml">
+    <Page Include="NewDataGrid.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="SampleData\SampleDataSource1\SampleDataSource1.xaml">
-      <Generator>MSBuild:Compile</Generator>
+    <Page Include="NewTab.xaml">
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="SampleData\SampleDataSource\SampleDataSource.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -103,18 +112,6 @@
     <Page Include="Simple Styles.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </Page>
-    <Page Include="UserControl1.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UserControl2.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UserControl4.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
@@ -139,11 +136,6 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <None Include="SampleData\SampleDataSource1\SampleDataSource1.xsd" />
-    <None Include="SampleData\SampleDataSource\SampleDataSource.xsd" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="FilteredObject_13400_14x_24.bmp" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="FilteredObject13400_128x128.png" />

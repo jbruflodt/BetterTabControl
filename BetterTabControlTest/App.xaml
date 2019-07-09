@@ -1,7 +1,8 @@
-﻿<Application x:Class="BetterTabControlTest.App"
+﻿<Application
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:BetterTabControlTest"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:SampleDataSource="clr-namespace:Expression.Blend.SampleData.SampleDataSource" mc:Ignorable="d" x:Class="BetterTabControlTest.App"
              StartupUri="Window1.xaml">
     <Application.Resources>
 
@@ -9,6 +10,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/BetterTabControl;component/Simple Styles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+            <SampleDataSource:SampleDataSource x:Key="SampleDataSource" d:IsDataSource="True"/>
         </ResourceDictionary>
 
     </Application.Resources>

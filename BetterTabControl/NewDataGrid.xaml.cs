@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace BetterTabs
 {
     /// <summary>
-    /// Interaction logic for UserControl2.xaml
+    /// Interaction logic for NewDataGrid.xaml
     /// </summary>
-    public partial class UserControl2 : UserControl
+    public partial class NewDataGrid : UserControl
     {
-        public UserControl2()
+        public NewDataGrid()
         {
             InitializeComponent();
         }

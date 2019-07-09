@@ -4,11 +4,11 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BetterTabControlTest"
-        xmlns:SampleDataSource="clr-namespace:Expression.Blend.SampleData.SampleDataSource" xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero" x:Class="BetterTabControlTest.Window1"
+        xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero" xmlns:BetterTabs="clr-namespace:BetterTabs;assembly=BetterTabControl" xmlns:SampleDataSource="clr-namespace:Expression.Blend.SampleData.SampleDataSource" x:Name="window" x:Class="BetterTabControlTest.Window1"
         mc:Ignorable="d"
         Title="Window1" Height="450" Width="800">
     <Window.Resources>
-        <SampleDataSource:SampleDataSource x:Key="SampleDataSource" d:IsDataSource="True"/>
+        <BetterTabs:ListCollectionViewIListConverter x:Key="ListCollectionViewIListConverter"/>
         <Style x:Key="ColumnHeaderGripperStyle" TargetType="{x:Type Thumb}">
             <Setter Property="Width" Value="8"/>
             <Setter Property="Background" Value="Transparent"/>
@@ -312,11 +312,7 @@
             </Setter>
         </Style>
     </Window.Resources>
-    <Grid DataContext="{Binding Source={StaticResource SampleDataSource}}" d:DataContext="{Binding Source={StaticResource SampleDataSource}}">
-        <DataGrid x:Name="DataGrid" ItemsSource="{Binding Collection}" ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}">
-            <DataGrid.DataContext>
-                <SampleDataSource:SampleDataSource/>
-            </DataGrid.DataContext>
-        </DataGrid>
+    <Grid DataContext="{Binding Source={StaticResource SampleDataSource}}">
+        <BetterTabs:AutoFilterDataGrid HorizontalAlignment="Left" VerticalAlignment="Top" DataSource="{Binding Collection, Converter={StaticResource ListCollectionViewIListConverter}}"/>
     </Grid>
 </Window>

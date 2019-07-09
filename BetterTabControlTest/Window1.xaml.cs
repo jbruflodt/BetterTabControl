@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Expression.Blend.SampleData.SampleDataSource;
 
 namespace BetterTabControlTest
 {
@@ -21,7 +22,10 @@ namespace BetterTabControlTest
     {
         public Window1()
         {
+            TestData = new SampleDataSource();
             InitializeComponent();
         }
+
+        public SampleDataSource TestData { get; set; }
     }
 }

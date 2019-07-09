@@ -16,6 +16,8 @@ using System.Windows.Shapes;
 using System.ComponentModel;
 using System.Windows.Controls.Primitives;
 using System.Collections.Specialized;
+using System.Collections.ObjectModel;
+using System.Collections;
 
 namespace BetterTabs
 {
@@ -27,6 +29,7 @@ namespace BetterTabs
         private bool autoFilter;
         private List<FilterValue> filterList;
         private int filterColumnIndex;
+        ObservableCollection<CheckBox> filterPopupContent;
         private static Path ascendingArrow = new Path()
         {
             Data = Geometry.Parse("M0.50000001,5.0100004 L5.1155531,0.50000001 9.6670012,4.9473615 M5.1060004,8.7700007 C5.1060004,0.66589555 5.1060004,0.77006571 5.1060004,0.77006571")
@@ -81,11 +84,44 @@ namespace BetterTabs
                 OnPropertyChanged("AutoFilter");
             }
         }
+        public ObservableCollection<CheckBox> FilterPopupContent
+        {
+            get
+            {
+                return filterPopupContent;
+            }
+        }
         public BetterDataGrid()
         {
+            filterPopupContent = new ObservableCollection<CheckBox>();
+            CheckBox tempCheck = new CheckBox();
+            tempCheck.Content = "All";
+            tempCheck.FontWeight = FontWeights.Bold;
+            tempCheck.IsThreeState = true;
+            tempCheck.Checked += AllCheckBox_Checked;
+            tempCheck.Unchecked += AllCheckBox_Unchecked;
+            filterPopupContent.Add(tempCheck);
             filterList = new List<FilterValue>();
             InitializeComponent();
+            this.Loaded += BetterDataGrid_Loaded;
         }
+
+        private void BetterDataGrid_Loaded(object sender, RoutedEventArgs e)
+        {
+            GenerateFilterList();
+        }
+        private void GenerateFilterList()
+        {
+            if (AutoFilterEnabled)
+            {
+                filterList = new List<FilterValue>();
+                foreach (DataGridBoundColumn thisColumn in Columns)
+                {
+                    filterList.Add(new FilterValue(((Binding)thisColumn.Binding).Path.Path.ToString(), new List<string>()));
+                }
+            }
+        }
+
         private void OnPropertyChanged(string property)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
@@ -162,8 +198,68 @@ namespace BetterTabs
         private void FilterButton_Click(object sender, RoutedEventArgs e)
         {
             Button filterButton = (Button)sender;
-            filterColumnIndex = (int)filterButton.Tag;
-            ((DataGridColumnHeader)filterButton.TemplatedParent).
+            filterColumnIndex = ((DataGridColumnHeader)filterButton.TemplatedParent).DisplayIndex;
+            List<string> columnValues = new List<string>();
+            Popup filterPopup = (Popup)filterButton.Tag;
+            for (int x = 1; x < filterPopupContent.Count; x = 1)
+            {
+                filterPopupContent.RemoveAt(x);
+            }
+            if (this.HasItems)
+            {
+                PropertyPath propertyPath = ((Binding)((DataGridBoundColumn)this.Columns[filterColumnIndex]).Binding).Path;
+                Type itemsType = this.Items[0].GetType();
+                foreach (object item in this.Items)
+                {
+                    if (item.GetType().ToString() != "MS.Internal.NamedObject")
+                    {
+                        string thisValue = itemsType.GetProperty(propertyPath.Path).GetMethod.Invoke(item, new object[] { }).ToString();
+                        if (!columnValues.Contains(thisValue))
+                            columnValues.Add(thisValue);
+                    }
+                }
+                columnValues.Sort();
+                foreach (string thisValue in columnValues)
+                {
+                    CheckBox tempCheck = new CheckBox();
+                    tempCheck.Content = thisValue;
+                    tempCheck.Checked += CheckBox_Checked;
+                    tempCheck.Unchecked += CheckBox_Unchecked;
+                    filterPopupContent.Add(tempCheck);
+                }
+            }
+            filterPopup.IsOpen = true;
+        }
+
+        private void FilterPopup_Closed(object sender, EventArgs e)
+        {
+            Popup filterPopup = (Popup)sender;
+            int columnIndex = ((DataGridColumnHeader)filterPopup.TemplatedParent).DisplayIndex;
+            FilterValue thisColumnFilter = new FilterValue();
+            foreach(FilterValue thisFilter in filterList)
+            {
+                if (thisFilter.PropertyName == ((Binding)((DataGridBoundColumn)this.Columns[filterColumnIndex]).Binding).Path.Path.ToString())
+                    thisColumnFilter = thisFilter;
+            }
+            thisColumnFilter.FilteredValues = new List<string>();
+            for(int x = 1; x < FilterPopupContent.Count; x++)
+            {
+                CheckBox tempCheck = FilterPopupContent[x];
+                if (!tempCheck.IsChecked.HasValue || !tempCheck.IsChecked.Value)
+                    thisColumnFilter.FilteredValues.Add(tempCheck.Content.ToString());
+
+            }
+        }
+
+        protected override void OnAutoGeneratedColumns(EventArgs e)
+        {
+            base.OnAutoGeneratedColumns(e);
+            GenerateFilterList();
+        }
+
+        protected override void OnItemsSourceChanged(IEnumerable oldValue, IEnumerable newValue)
+        {
+            base.OnItemsSourceChanged(oldValue, newValue);
         }
     }
     public class SortDirectionConverter : IValueConverter
@@ -308,24 +404,5 @@ namespace BetterTabs
             }
         }
     }
-    public class FilterValue
-    {
-        string propertyName;
-        List<string> permittedValues;
-
-        public FilterValue()
-        {
-            PropertyName = "";
-            PermittedValues = new List<string>();
-        }
-
-        public FilterValue(string propertyName, List<string> permittedValues)
-        {
-            this.PropertyName = propertyName;
-            this.PermittedValues = permittedValues;
-        }
-
-        public string PropertyName { get => propertyName; set => propertyName = value; }
-        public List<string> PermittedValues { get => permittedValues; set => permittedValues = value; }
-    }
+    
 }

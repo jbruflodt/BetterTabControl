@@ -28,7 +28,7 @@ namespace Expression.Blend.SampleData.SampleDataSource
         {
             try
             {
-                Uri resourceUri = new Uri("ms-appx:/SampleData/SampleDataSource/SampleDataSource.xaml", UriKind.RelativeOrAbsolute);
+                Uri resourceUri = new Uri("/BetterTabControlTest;component/SampleData/SampleDataSource/SampleDataSource.xaml", UriKind.RelativeOrAbsolute);
                 System.Windows.Application.LoadComponent(this, resourceUri);
             }
             catch
