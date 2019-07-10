@@ -33,50 +33,104 @@ namespace BetterTabs
             typeof(AutoFilterDataGrid),
             new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender, new PropertyChangedCallback(OnDataSourceChanged))
             );
+        [Description("Source of the data for the DataGrid. Must be bound for filtering to work."), Category("DataGrid Properties")]
         public ListCollectionView DataSource
         {
             get { return (ListCollectionView)GetValue(DataSourceProperty); }
             set { SetValue(DataSourceProperty, value); }
         }
-        public Brush AlternatingRowBackgroundcolor
+        [Description("The background color of every other row in the DataGrid"), Category("Rows Properties")]
+        public Brush AlternatingRowBackground
         {
             get { return dataGrid.AlternatingRowBackground; }
             set { dataGrid.AlternatingRowBackground = value; }
         }
-        public bool IsReadOnly
+        [Description("The background color of rows in the DataGrid"), Category("Rows Properties")]
+        public Brush RowBackground
         {
-            get { return dataGrid.IsReadOnly; }
-            set { dataGrid.IsReadOnly = value; }
+            get { return dataGrid.RowBackground; }
+            set { dataGrid.RowBackground = value; }
         }
+        [Description("The style for the rows in the DataGrid"), Category("Rows Properties")]
+        public Style RowStyle
+        {
+            get { return dataGrid.RowStyle; }
+            set { dataGrid.RowStyle = value; }
+        }
+
+        [Description("Generate columns automatically when data is bound."), Category("Columns Properties")]
+        public bool AutoGenerateColumns
+        {
+            get { return dataGrid.AutoGenerateColumns; }
+            set { dataGrid.AutoGenerateColumns = value; }
+        }
+        [Description("The columns in the DataGrid."), Category("Columns Properties")]
+        public ObservableCollection<DataGridColumn> Columns
+        {
+            get { return dataGrid.Columns; }
+        }
+        [Description("The internal DataGrid for the control. Do not mess with unless you know what you are doing")]
+        public DataGrid InternalDataGrid
+        {
+            get { return dataGrid; }
+        }
+        [Category("Rows Properties")]
         public bool CanUserAddRows
         {
             get { return dataGrid.CanUserAddRows; }
             set { dataGrid.CanUserAddRows = value; }
         }
+        [Category("Rows Properties")]
         public bool CanUserDeleteRows
         {
             get { return dataGrid.CanUserDeleteRows; }
             set { dataGrid.CanUserDeleteRows = value; }
         }
+        [Category("Columns Properties")]
         public bool CanUserReorderColumns
         {
             get { return dataGrid.CanUserReorderColumns; }
             set { dataGrid.CanUserReorderColumns = value; }
         }
+        [Category("Columns Properties")]
         public bool CanUserResizeColumns
         {
             get { return dataGrid.CanUserResizeColumns; }
             set { dataGrid.CanUserResizeColumns = value; }
         }
+        [Category("Rows Properties")]
         public bool CanUserResizeRows
         {
             get { return dataGrid.CanUserResizeRows; }
             set { dataGrid.CanUserResizeRows = value; }
         }
+        [Category("Columns Properties")]
         public bool CanUserSortColumns
         {
             get { return dataGrid.CanUserSortColumns; }
             set { dataGrid.CanUserSortColumns = value; }
+        }
+        public IList<DataGridCellInfo> SelectedCells
+        {
+            get { return dataGrid.SelectedCells; }
+        }
+        [Category("DataGrid Properties")]
+        public DataGridSelectionMode SelectionMode
+        {
+            get { return dataGrid.SelectionMode; }
+            set { dataGrid.SelectionMode = value; }
+        }
+        [Category("DataGrid Properties")]
+        public bool IsReadOnly
+        {
+            get { return dataGrid.IsReadOnly; }
+            set { dataGrid.IsReadOnly = value; }
+        }
+        [Category("DataGrid Properties")]
+        public DataGridSelectionUnit SelectionUnit
+        {
+            get { return dataGrid.SelectionUnit; }
+            set { dataGrid.SelectionUnit = value; }
         }
         public ObservableCollection<CheckBox> FilterPopupContent
         {

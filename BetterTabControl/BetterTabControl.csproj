@@ -53,63 +53,21 @@
     <Compile Include="AutoFilterDataGrid.xaml.cs">
       <DependentUpon>AutoFilterDataGrid.xaml</DependentUpon>
     </Compile>
-    <Compile Include="BetterDataGrid.xaml.cs">
-      <DependentUpon>BetterDataGrid.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="FilterableDataSource.cs" />
-    <Compile Include="FilterableDataTable.cs" />
-    <Compile Include="FilterPopup.xaml.cs">
-      <DependentUpon>FilterPopup.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="NewDataGrid.xaml.cs">
-      <DependentUpon>NewDataGrid.xaml</DependentUpon>
-    </Compile>
     <None Include="SampleData\SampleDataSource\SampleDataSource.xsd" />
     <Page Include="AutoFilterDataGrid.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="BetterDataGrid.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="BetterTabControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="BetterTabControlBar.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Compile Include="BetterTabControl.xaml.cs">
       <DependentUpon>BetterTabControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="NewTab.xaml.cs">
-      <DependentUpon>NewTab.xaml</DependentUpon>
-    </Compile>
     <Compile Include="SampleData\SampleDataSource\SampleDataSource.xaml.cs" />
     <Compile Include="Tab.cs" />
-    <Compile Include="BetterTabControlBar.xaml.cs">
-      <DependentUpon>BetterTabControlBar.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Page Include="FilterPopup.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="NewDataGrid.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="NewTab.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="SampleData\SampleDataSource\SampleDataSource.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Simple Styles.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

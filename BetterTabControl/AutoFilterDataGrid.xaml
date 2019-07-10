@@ -75,7 +75,7 @@
         </Style>
     </UserControl.Resources>
     <Grid>
-        <DataGrid x:Name="dataGrid" Background="{Binding Background, ElementName=userControl}" BorderBrush="{Binding BorderBrush, ElementName=userControl}" Foreground="{Binding Foreground, ElementName=userControl}" OpacityMask="{Binding OpacityMask, ElementName=userControl}" ColumnHeaderStyle="{DynamicResource FilterHeaderStyle}" AlternatingRowBackground="#FFC0FFC0" ItemsSource="{Binding DataSource, ElementName=userControl}"/>
+        <DataGrid x:Name="dataGrid" Background="{Binding Background, ElementName=userControl}" BorderBrush="{Binding BorderBrush, ElementName=userControl}" Foreground="{Binding Foreground, ElementName=userControl}" OpacityMask="{Binding OpacityMask, ElementName=userControl}" ColumnHeaderStyle="{DynamicResource FilterHeaderStyle}" AlternatingRowBackground="#FFC0FFC0" ItemsSource="{Binding DataSource, ElementName=userControl}" IsReadOnly="{Binding IsReadOnly, ElementName=userControl}" Opacity="{Binding Opacity, ElementName=userControl}" FontFamily="{Binding FontFamily, ElementName=userControl}" FontSize="{Binding FontSize, ElementName=userControl}" FontWeight="{Binding FontWeight, ElementName=userControl}" FontStyle="{Binding FontStyle, ElementName=userControl}"/>
 
     </Grid>
 </UserControl>

@@ -18,7 +18,7 @@ namespace BetterTabs
     {
         public static readonly DependencyProperty TabTitleProperty = DependencyProperty.RegisterAttached(
             "TabTitle",
-            typeof(string),
+            typeof(object),
             typeof(Tab),
             new FrameworkPropertyMetadata("Untitled", FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender, new PropertyChangedCallback(OnTabTitleChanged))
             );
@@ -46,16 +46,17 @@ namespace BetterTabs
             typeof(Tab),
             new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender, new PropertyChangedCallback(OnSelectedChanged))
             );
-        private string tabTitle;
+        private object tabTitle;
         private Control tabContent;
         private Guid id;
         private int displayIndex;
         private int previousIndex;
         private bool selected;
+        private bool dragging;
 
-        public string TabTitle
+        public object TabTitle
         {
-            get { return (string)GetValue(TabTitleProperty); }
+            get { return (object)GetValue(TabTitleProperty); }
             set { SetValue(TabTitleProperty, value); }
         }
         public Control TabContent
@@ -79,6 +80,18 @@ namespace BetterTabs
         public bool Selected
         {
             get { return (bool)GetValue(SelectedProperty); }
+        }
+        public bool Dragging
+        {
+            get
+            {
+                return dragging;
+            }
+            set
+            {
+                dragging = value;
+                NotifyPropertyChanged("Dragging");
+            }
         }
 
         internal int PreviousIndex { get => previousIndex; set => previousIndex = value; }

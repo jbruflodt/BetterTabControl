@@ -7,9 +7,6 @@
     <Application.Resources>
 
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/BetterTabControl;component/Simple Styles.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
             <SampleDataSource:SampleDataSource x:Key="SampleDataSource" d:IsDataSource="True"/>
         </ResourceDictionary>
 
