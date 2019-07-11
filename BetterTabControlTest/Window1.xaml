@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BetterTabControlTest"
-        xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero" xmlns:BetterTabs="clr-namespace:BetterTabs;assembly=BetterTabControl" xmlns:SampleDataSource="clr-namespace:Expression.Blend.SampleData.SampleDataSource" xmlns:ExtendedGridControl="clr-namespace:ExtendedGrid.ExtendedGridControl;assembly=ExtendedGrid" x:Name="window" x:Class="BetterTabControlTest.Window1"
+        xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero" xmlns:BetterTabs="clr-namespace:BetterTabs;assembly=BetterTabControl" xmlns:SampleDataSource="clr-namespace:Expression.Blend.SampleData.SampleDataSource" x:Name="window" x:Class="BetterTabControlTest.Window1"
         mc:Ignorable="d"
         Title="Window1" Height="450" Width="800">
     <Window.Resources>
