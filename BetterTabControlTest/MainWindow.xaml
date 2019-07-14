@@ -8,11 +8,7 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <BetterTabs:BetterTabControl>
-            <BetterTabs:BetterTabControl.Tabs>
-                <BetterTabs:Tab/>
-                <BetterTabs:Tab DisplayIndex="1"/>
-            </BetterTabs:BetterTabControl.Tabs>
+        <BetterTabs:BetterTabControl DefaultContentType="{x:Type local:TestDataGrid}">
         </BetterTabs:BetterTabControl>
     </Grid>
 </Window>

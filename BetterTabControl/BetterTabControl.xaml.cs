@@ -17,13 +17,14 @@ using System.Reflection;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Collections;
 
 namespace BetterTabs
 {
     /// <summary>
     /// Interaction logic for BetterTabControl.xaml
     /// </summary>
-    public partial class BetterTabControl : UserControl
+    public partial class BetterTabControl : UserControl, INotifyPropertyChanged
     {
         private Type defaultContentType;
         private Tab draggedTab;
@@ -45,9 +46,9 @@ namespace BetterTabs
             );
         public static readonly DependencyProperty TabsPropertty = DependencyProperty.Register(
             "Tabs",
-            typeof(ObservableCollection<Tab>),
+            typeof(TabCollection),
             typeof(BetterTabControl),
-            new FrameworkPropertyMetadata(new ObservableCollection<Tab>(), FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender)
+            new FrameworkPropertyMetadata(new TabCollection(), FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender)
             );
         public static readonly DependencyProperty BarBackgroundColorProperty = DependencyProperty.Register(
             "BarBackgroundColor",
@@ -169,18 +170,40 @@ namespace BetterTabs
                 }
                 return null;
             }
+            set
+            {
+                try
+                {
+                    ChangeSelectedTab(value);
+                }
+                catch
+                {
+                    throw;
+                }
+            }
         }
         public int SelectedIndex
         {
             get
             {
-                for(int x = 0; x < Tabs.Count; x++)
+                for (int x = 0; x < Tabs.Count; x++)
                 {
                     Tab tempTab = Tabs[x];
                     if (tempTab.Selected)
                         return x;
                 }
                 return -1;
+            }
+            set
+            {
+                try
+                {
+                    ChangeSelectedTab(value);
+                }
+                catch
+                {
+                    throw;
+                }
             }
         }
         public Control SelectedContent
@@ -216,11 +239,11 @@ namespace BetterTabs
                 }
             }
         }
-        public ObservableCollection<Tab> Tabs
+        public TabCollection Tabs
         {
             get
             {
-                return (ObservableCollection<Tab>)GetValue(TabsPropertty);
+                return (TabCollection)GetValue(TabsPropertty);
             }
             set
             {
@@ -230,10 +253,55 @@ namespace BetterTabs
         public event EventHandler AddingNewTab;
         public event EventHandler AddedNewTab;
         public event EventHandler AllTabsClosed;
+        public event SelectedTabChangingEventHandler SelectedTabChanging;
+        public event SelectedTabChangedEventHandler SelectedTabChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public BetterTabControl()
         {
             InitializeComponent();
             Tabs.CollectionChanged += TabsCollectionChanged;
+        }
+        protected virtual bool OnSelectedTabChanging(Tab oldSelection, Tab newSelection)
+        {
+            SelectedTabChangingEventArgs eventArgs = new SelectedTabChangingEventArgs(oldSelection, newSelection);
+            SelectedTabChanging?.Invoke(this, eventArgs);
+            return eventArgs.Cancel;
+        }
+        protected virtual void OnSelectedTabChanged(Tab oldSelection, Tab newSelection)
+        {
+            SelectedTabChanged?.Invoke(this, new SelectedTabChangedEventArgs(oldSelection, newSelection));
+        }
+        private void NotifySelectedChanged()
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectedTab"));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectedContent"));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectedIndex"));
+        }
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+        private void ChangeSelectedTab(Tab tab)
+        {
+            if (Tabs.Contains(tab))
+            {
+                Tab oldSelection = SelectedTab;
+                if (!OnSelectedTabChanging(oldSelection, tab))
+                {
+                    ClearSelected();
+                    tab.SetSelected(true);
+                    OnSelectedTabChanged(oldSelection, tab);
+                }
+            }
+            else
+            {
+                throw new ArgumentException("tab is not in this BetterTabControl");
+            }
+        }
+        private void ChangeSelectedTab(int index)
+        {
+            ChangeSelectedTab(Tabs[index]);
         }
         private void TabsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
@@ -290,7 +358,7 @@ namespace BetterTabs
             }
             AddedNewTab?.Invoke(this, new EventArgs());
         }
-        public void ClearSelected()
+        private void ClearSelected()
         {
             foreach (Tab tempTab in Tabs)
             {
@@ -334,6 +402,9 @@ namespace BetterTabs
         {
             if (Tabs.Count <= 0)
                 AddNewTab();
+            if (SelectedTab == null)
+                ChangeSelectedTab(0);
+
         }
 
         private void TabButton_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -530,6 +601,30 @@ namespace BetterTabs
         public bool Cancel { get => cancel; set => cancel = value; }
     }
     public delegate void CancelableTabEventHandler(object sender, CancelableTabEventArgs e);
+    public class SelectedTabChangingEventArgs : CancelableTabEventArgs
+    {
+        public SelectedTabChangingEventArgs(Tab oldSelection, Tab newSelection) : base()
+        {
+            OldSelection = oldSelection;
+            NewSelection = newSelection;
+        }
+
+        public Tab OldSelection { get; set; }
+        public Tab NewSelection { get; set; }
+    }
+    public delegate void SelectedTabChangingEventHandler(object sender, SelectedTabChangingEventArgs e);
+    public class SelectedTabChangedEventArgs : EventArgs
+    {
+        public SelectedTabChangedEventArgs(Tab oldSelection, Tab newSelection) : base()
+        {
+            OldSelection = oldSelection;
+            NewSelection = newSelection;
+        }
+
+        public Tab OldSelection { get; set; }
+        public Tab NewSelection { get; set; }
+    }
+    public delegate void SelectedTabChangedEventHandler(object sender, SelectedTabChangedEventArgs e);
     public class ChangeColorBrightness : IValueConverter
     {
         /// <summary>
@@ -647,6 +742,132 @@ namespace BetterTabs
                 return ChangeColor(color, changeValue * -1);
             else
                 return new SolidColorBrush(ChangeColor(color, changeValue * -1));
+        }
+    }
+    public sealed class TabCollection : INotifyPropertyChanged, INotifyCollectionChanged, IList<Tab>, ICollection<Tab>, IEnumerable<Tab>
+    {
+        private ObservableCollection<Tab> collection;
+
+        public TabCollection()
+        {
+            this.collection = new ObservableCollection<Tab>();
+        }
+
+        public TabCollection(ObservableCollection<Tab> tabs)
+        {
+            this.collection = new ObservableCollection<Tab>(tabs) ?? throw new ArgumentNullException(nameof(tabs));
+        }
+
+        public Tab this[int index] { get => ((IList<Tab>)collection)[index]; set => ((IList<Tab>)collection)[index] = value; }
+
+        public int Count => ((IList<Tab>)collection).Count;
+
+        public bool IsReadOnly => ((IList<Tab>)collection).IsReadOnly;
+
+        public event PropertyChangedEventHandler PropertyChanged
+        {
+            add
+            {
+                ((INotifyPropertyChanged)collection).PropertyChanged += value;
+            }
+
+            remove
+            {
+                ((INotifyPropertyChanged)collection).PropertyChanged -= value;
+            }
+        }
+
+        public event NotifyCollectionChangedEventHandler CollectionChanged
+        {
+            add
+            {
+                ((INotifyCollectionChanged)collection).CollectionChanged += value;
+            }
+
+            remove
+            {
+                ((INotifyCollectionChanged)collection).CollectionChanged -= value;
+            }
+        }
+
+        public void Add(Tab item)
+        {
+            if(item.Selected)
+                item.SetSelected(false);
+            if (item.TabCollection == null || item.TabCollection == this)
+            {
+                if (!collection.Contains(item))
+                    ((IList<Tab>)collection).Add(item);
+                else
+                    throw new ArgumentException("Tab is already in this collection");
+            }
+            else
+                throw new ArgumentException("Tab is already in this collection");
+        }
+
+        public void Clear()
+        {
+            foreach(Tab thisTab in collection)
+            {
+                thisTab.SetTabCollection(null);
+            }
+            ((IList<Tab>)collection).Clear();
+        }
+
+        public bool Contains(Tab item)
+        {
+            return ((IList<Tab>)collection).Contains(item);
+        }
+
+        public void CopyTo(Tab[] array, int arrayIndex)
+        {
+            ((IList<Tab>)collection).CopyTo(array, arrayIndex);
+        }
+
+        public IEnumerator<Tab> GetEnumerator()
+        {
+            return ((IList<Tab>)collection).GetEnumerator();
+        }
+
+        public int IndexOf(Tab item)
+        {
+            return ((IList<Tab>)collection).IndexOf(item);
+        }
+
+        public void Insert(int index, Tab item)
+        {
+            if (item.Selected)
+                item.SetSelected(false);
+            if (item.TabCollection == null || item.TabCollection == this)
+            {
+                if (!collection.Contains(item))
+                    ((IList<Tab>)collection).Insert(index, item);
+                else
+                    throw new ArgumentException("Tab is already in this collection");
+            }
+            else
+                throw new ArgumentException("Tab is already in this collection");
+        }
+
+        public bool Remove(Tab item)
+        {
+            item.SetTabCollection(null);
+            return ((IList<Tab>)collection).Remove(item);
+        }
+
+        public void RemoveAt(int index)
+        {
+            collection[index].SetTabCollection(null);
+            ((IList<Tab>)collection).RemoveAt(index);
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IList<Tab>)collection).GetEnumerator();
+        }
+        public void Move(int oldIndex, int newIndex)
+        {
+            collection.Move(oldIndex, newIndex);
         }
     }
 }

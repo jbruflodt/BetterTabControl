@@ -52,6 +52,7 @@ namespace BetterTabs
         private int displayIndex;
         private int previousIndex;
         private bool selected;
+        private TabCollection tabCollection;
         private bool dragging;
 
         public object TabTitle
@@ -80,6 +81,13 @@ namespace BetterTabs
         public bool Selected
         {
             get { return (bool)GetValue(SelectedProperty); }
+        }
+        public TabCollection TabCollection
+        {
+            get
+            {
+                return tabCollection;
+            }
         }
         public bool Dragging
         {
@@ -128,6 +136,11 @@ namespace BetterTabs
                 SetValue(SelectedProperty, value);
                 SelectChanged?.Invoke(this, new EventArgs());
             }
+        }
+        internal void SetTabCollection(TabCollection tabCollection)
+        {
+            this.tabCollection = tabCollection;
+            NotifyPropertyChanged("TabCollection");
         }
         private void SetID(Guid newID)
         {

@@ -10,23 +10,23 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Expression.Blend.SampleData.SampleDataSource;
+
 
 namespace BetterTabControlTest
 {
     /// <summary>
-    /// Interaction logic for Window1.xaml
+    /// Interaction logic for TestDataGrid.xaml
     /// </summary>
-    public partial class Window1 : Window
+    public partial class TestDataGrid : UserControl
     {
-        public Window1()
+        public TestDataGrid()
         {
             TestData = new SampleDataSource();
             InitializeComponent();
-            Tabs.DefaultContentType = typeof(BetterTabs.AutoFilterDataGrid);
         }
-
         public SampleDataSource TestData { get; set; }
     }
 }
