@@ -319,6 +319,11 @@ namespace BetterTabs
             }
             DataSource.Refresh();
         }
+
+        private void DataGrid_CopyingRowClipboardContent(object sender, DataGridRowClipboardEventArgs e)
+        {
+
+        }
     }
     public class FilterValue
     {

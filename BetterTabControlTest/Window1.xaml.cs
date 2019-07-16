@@ -24,7 +24,6 @@ namespace BetterTabControlTest
         {
             TestData = new SampleDataSource();
             InitializeComponent();
-            Tabs.DefaultContentType = typeof(BetterTabs.AutoFilterDataGrid);
         }
 
         public SampleDataSource TestData { get; set; }

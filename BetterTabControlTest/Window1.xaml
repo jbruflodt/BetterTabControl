@@ -314,7 +314,6 @@
         </Style>
     </Window.Resources>
     <Grid DataContext="{Binding Source={StaticResource SampleDataSource}}">
-        <BetterTabs:BetterTabControl x:Name="Tabs" DefaultContentType="{x:Type local:TestDataGrid}">
-        </BetterTabs:BetterTabControl>
+        <BetterTabs:AutoFilterDataGrid DataSource="{Binding TestData.Collection, Converter={StaticResource ListCollectionViewIListConverter}, ElementName=window}"/>
     </Grid>
 </Window>
