@@ -33,38 +33,38 @@ namespace BetterTabs
             typeof(AutoFilterDataGrid),
             new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender, new PropertyChangedCallback(OnDataSourceChanged))
             );
-        [Description("Source of the data for the DataGrid. Must be bound for filtering to work."), Category("DataGrid Properties")]
+        [Description("Source of the data for the DataGrid. Must be bound for filtering to work."), Category("DataGrid")]
         public ListCollectionView DataSource
         {
             get { return (ListCollectionView)GetValue(DataSourceProperty); }
             set { SetValue(DataSourceProperty, value); }
         }
-        [Description("The background color of every other row in the DataGrid"), Category("Rows Properties")]
+        [Description("The background color of every other row in the DataGrid"), Category("Rows")]
         public Brush AlternatingRowBackground
         {
             get { return dataGrid.AlternatingRowBackground; }
             set { dataGrid.AlternatingRowBackground = value; }
         }
-        [Description("The background color of rows in the DataGrid"), Category("Rows Properties")]
+        [Description("The background color of rows in the DataGrid"), Category("Rows")]
         public Brush RowBackground
         {
             get { return dataGrid.RowBackground; }
             set { dataGrid.RowBackground = value; }
         }
-        [Description("The style for the rows in the DataGrid"), Category("Rows Properties")]
+        [Description("The style for the rows in the DataGrid"), Category("Rows")]
         public Style RowStyle
         {
             get { return dataGrid.RowStyle; }
             set { dataGrid.RowStyle = value; }
         }
 
-        [Description("Generate columns automatically when data is bound."), Category("Columns Properties")]
+        [Description("Generate columns automatically when data is bound."), Category("Columns")]
         public bool AutoGenerateColumns
         {
             get { return dataGrid.AutoGenerateColumns; }
             set { dataGrid.AutoGenerateColumns = value; }
         }
-        [Description("The columns in the DataGrid."), Category("Columns Properties")]
+        [Description("The columns in the DataGrid."), Category("Columns")]
         public ObservableCollection<DataGridColumn> Columns
         {
             get { return dataGrid.Columns; }
@@ -74,37 +74,37 @@ namespace BetterTabs
         {
             get { return dataGrid; }
         }
-        [Category("Rows Properties")]
+        [Category("Rows")]
         public bool CanUserAddRows
         {
             get { return dataGrid.CanUserAddRows; }
             set { dataGrid.CanUserAddRows = value; }
         }
-        [Category("Rows Properties")]
+        [Category("Rows")]
         public bool CanUserDeleteRows
         {
             get { return dataGrid.CanUserDeleteRows; }
             set { dataGrid.CanUserDeleteRows = value; }
         }
-        [Category("Columns Properties")]
+        [Category("Columns")]
         public bool CanUserReorderColumns
         {
             get { return dataGrid.CanUserReorderColumns; }
             set { dataGrid.CanUserReorderColumns = value; }
         }
-        [Category("Columns Properties")]
+        [Category("Columns")]
         public bool CanUserResizeColumns
         {
             get { return dataGrid.CanUserResizeColumns; }
             set { dataGrid.CanUserResizeColumns = value; }
         }
-        [Category("Rows Properties")]
+        [Category("Rows")]
         public bool CanUserResizeRows
         {
             get { return dataGrid.CanUserResizeRows; }
             set { dataGrid.CanUserResizeRows = value; }
         }
-        [Category("Columns Properties")]
+        [Category("Columns")]
         public bool CanUserSortColumns
         {
             get { return dataGrid.CanUserSortColumns; }
@@ -114,23 +114,119 @@ namespace BetterTabs
         {
             get { return dataGrid.SelectedCells; }
         }
-        [Category("DataGrid Properties")]
+        [Category("DataGrid")]
         public DataGridSelectionMode SelectionMode
         {
             get { return dataGrid.SelectionMode; }
             set { dataGrid.SelectionMode = value; }
         }
-        [Category("DataGrid Properties")]
+        [Category("DataGrid")]
         public bool IsReadOnly
         {
             get { return dataGrid.IsReadOnly; }
             set { dataGrid.IsReadOnly = value; }
         }
-        [Category("DataGrid Properties")]
+        [Category("DataGrid")]
         public DataGridSelectionUnit SelectionUnit
         {
             get { return dataGrid.SelectionUnit; }
             set { dataGrid.SelectionUnit = value; }
+        }
+        [Category("Rows")]
+        public Style RowHeaderStyle
+        {
+            get
+            {
+                return dataGrid.RowHeaderStyle;
+            }
+            set
+            {
+                dataGrid.RowHeaderStyle = value;
+            }
+        }
+        [Category("Rows")]
+        public StyleSelector RowStyleSelector
+        {
+            get
+            {
+                return dataGrid.RowStyleSelector;
+            }
+            set
+            {
+                dataGrid.RowStyleSelector = value;
+            }
+        }
+        [Category("Columns")]
+        public Style CellStyle
+        {
+            get
+            {
+                return dataGrid.CellStyle;
+            }
+            set
+            {
+                dataGrid.CellStyle = value;
+            }
+        }
+        [Category("Rows")]
+        public DataTemplate RowHeaderTemplate
+        {
+            get
+            {
+                return dataGrid.RowHeaderTemplate;
+            }
+            set
+            {
+                dataGrid.RowHeaderTemplate = value;
+            }
+        }
+        [Category("Rows")]
+        public DataTemplate RowDetailsTemplate
+        {
+            get
+            {
+                return dataGrid.RowDetailsTemplate;
+            }
+            set
+            {
+                dataGrid.RowDetailsTemplate = value;
+            }
+        }
+        [Category("Rows")]
+        public DataTemplateSelector RowDetailsTemplateSelector
+        {
+            get
+            {
+                return dataGrid.RowDetailsTemplateSelector;
+            }
+            set
+            {
+                dataGrid.RowDetailsTemplateSelector = value;
+            }
+        }
+        [Category("Rows")]
+        public DataTemplateSelector RowHeaderTemplateSelector
+        {
+            get
+            {
+                return dataGrid.RowHeaderTemplateSelector;
+            }
+            set
+            {
+                dataGrid.RowHeaderTemplateSelector = value;
+            }
+        }
+        [Category("Rows")]
+        public ControlTemplate RowValidationErrorTemplate
+        {
+            get
+            {
+                return dataGrid.RowValidationErrorTemplate;
+            }
+            set
+            {
+                dataGrid.RowValidationErrorTemplate = value;
+            }
         }
         public ObservableCollection<CheckBox> FilterPopupContent
         {
@@ -318,12 +414,7 @@ namespace BetterTabs
 
             }
             DataSource.Refresh();
-        }
-
-        private void DataGrid_CopyingRowClipboardContent(object sender, DataGridRowClipboardEventArgs e)
-        {
-
-        }
+        } 
     }
     public class FilterValue
     {

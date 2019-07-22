@@ -74,19 +74,16 @@
             </Setter>
         </Style>
     </UserControl.Resources>
+    <UserControl.ContextMenu>
+        <ContextMenu>
+            <MenuItem CommandTarget="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:AutoFilterDataGrid}}}" Command="ApplicationCommands.Copy" Header="Copy"/>
+            <Separator/>
+            <MenuItem CommandTarget="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:AutoFilterDataGrid}}}" Command="ApplicationCommands.Undo" Header="Undo"/>
+            <MenuItem CommandTarget="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:AutoFilterDataGrid}}}" Command="ApplicationCommands.Redo" Header="Redo"/>
+        </ContextMenu>
+    </UserControl.ContextMenu>
     <Grid>
-        <DataGrid x:Name="dataGrid" Background="{Binding Background, ElementName=userControl}" BorderBrush="{Binding BorderBrush, ElementName=userControl}" Foreground="{Binding Foreground, ElementName=userControl}" OpacityMask="{Binding OpacityMask, ElementName=userControl}" ColumnHeaderStyle="{DynamicResource FilterHeaderStyle}" AlternatingRowBackground="#FFC0FFC0" ItemsSource="{Binding DataSource, ElementName=userControl}" IsReadOnly="{Binding IsReadOnly, ElementName=userControl}" Opacity="{Binding Opacity, ElementName=userControl}" FontFamily="{Binding FontFamily, ElementName=userControl}" FontSize="{Binding FontSize, ElementName=userControl}" FontWeight="{Binding FontWeight, ElementName=userControl}" FontStyle="{Binding FontStyle, ElementName=userControl}" RowHeaderWidth="{DynamicResource {x:Static SystemParameters.MenuCheckmarkWidthKey}}" CopyingRowClipboardContent="DataGrid_CopyingRowClipboardContent">
-            <DataGrid.ContextMenu>
-                <ContextMenu>
-                    <MenuItem CommandTarget="{Binding ContextMenu, ElementName=dataGrid}" Command="ApplicationCommands.Cut" Header="Cut"/>
-                    <MenuItem CommandTarget="{Binding ElementName=dataGrid, Mode=OneWay}" Command="ApplicationCommands.Copy" Header="Copy"/>
-                    <MenuItem CommandTarget="{Binding ElementName=dataGrid, Mode=OneWay}" Command="ApplicationCommands.Paste" Header="Paste"/>
-                    <Separator/>
-                    <MenuItem CommandTarget="{Binding ElementName=dataGrid, Mode=OneWay}" Command="ApplicationCommands.Undo" Header="Undo"/>
-                    <MenuItem CommandTarget="{Binding ElementName=dataGrid, Mode=OneWay}" Command="ApplicationCommands.Redo" Header="Redo"/>
-                </ContextMenu>
-            </DataGrid.ContextMenu>
-        </DataGrid>
+        <DataGrid x:Name="dataGrid" Background="{Binding Background, ElementName=userControl}" BorderBrush="{Binding BorderBrush, ElementName=userControl}" Foreground="{Binding Foreground, ElementName=userControl}" OpacityMask="{Binding OpacityMask, ElementName=userControl}" ColumnHeaderStyle="{DynamicResource FilterHeaderStyle}" AlternatingRowBackground="#FFC0FFC0" ItemsSource="{Binding DataSource, ElementName=userControl}" IsReadOnly="{Binding IsReadOnly, ElementName=userControl}" Opacity="{Binding Opacity, ElementName=userControl}" FontFamily="{Binding FontFamily, ElementName=userControl}" FontSize="{Binding FontSize, ElementName=userControl}" FontWeight="{Binding FontWeight, ElementName=userControl}" FontStyle="{Binding FontStyle, ElementName=userControl}" RowHeaderWidth="{DynamicResource {x:Static SystemParameters.MenuCheckmarkWidthKey}}"/>
 
     </Grid>
 </UserControl>
