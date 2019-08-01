@@ -26,6 +26,8 @@ namespace BetterTabs
     /// </summary>
     public partial class BetterTabControl : UserControl, INotifyPropertyChanged
     {
+        public static RoutedUICommand NextTabCommand = new RoutedUICommand("Next Tab", "NextTab", typeof(BetterTabControl), new InputGestureCollection(new InputGestureCollection { new KeyGesture(Key.Tab, ModifierKeys.Control) }));
+        public static RoutedUICommand PreviousTabCommand = new RoutedUICommand("Previous Tab", "PreviousTab", typeof(BetterTabControl), new InputGestureCollection(new InputGestureCollection { new KeyGesture(Key.Tab, ModifierKeys.Control | ModifierKeys.Shift) }));
         private Type defaultContentType;
         private Tab draggedTab;
         private bool doingDragDrop;
