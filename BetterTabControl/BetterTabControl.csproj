@@ -9,14 +9,14 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <Configurations>Debug;Release;Release_Package</Configurations>
-    <Description>Datagrid for WPF with excel like auto filter</Description>
+    <Description>Better WPF TabControl with drag and drop rearranging, close button, and customization options.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/jbruflodt/AutoFilterDataGrid</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/jbruflodt/AutoFilterDataGrid.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/jbruflodt/BetterTabControl</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/jbruflodt/BetterTabControl.git</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <AssemblyVersion>1.0.19207.1517</AssemblyVersion>
-    <FileVersion>1.0.19207.1517</FileVersion>
+    <AssemblyVersion>1.0.19207.1519</AssemblyVersion>
+    <FileVersion>1.0.19207.1519</FileVersion>
     <Version>$(AssemblyVersion)</Version>
     <PackageVersion>$(AssemblyVersion)</PackageVersion>
     <ShouldCreateLogs>True</ShouldCreateLogs>
