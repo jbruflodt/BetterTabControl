@@ -24,7 +24,7 @@ namespace BetterTabs
             );
         public static readonly DependencyProperty TabContentProperty = DependencyProperty.RegisterAttached(
             "TabContent",
-            typeof(Control),
+            typeof(UIElement),
             typeof(Tab),
             new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender, new PropertyChangedCallback(OnTabContentChanged))
             );
@@ -47,7 +47,7 @@ namespace BetterTabs
             new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender, new PropertyChangedCallback(OnSelectedChanged))
             );
         private object tabTitle;
-        private Control tabContent;
+        private UIElement tabContent;
         private Guid id;
         private int displayIndex;
         private int previousIndex;
@@ -60,7 +60,7 @@ namespace BetterTabs
             get { return (object)GetValue(TabTitleProperty); }
             set { SetValue(TabTitleProperty, value); }
         }
-        public Control TabContent
+        public UIElement TabContent
         {
             get { return (Control)GetValue(TabContentProperty); }
             set { SetValue(TabContentProperty, value); }
@@ -154,7 +154,7 @@ namespace BetterTabs
         private static void OnTabContentChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             Tab localTab = (Tab)sender;
-            localTab.tabContent = (Control)e.NewValue;
+            localTab.tabContent = (UIElement)e.NewValue;
         }
         private static void OnIDChanged(object sender, DependencyPropertyChangedEventArgs e)
         {

@@ -206,7 +206,7 @@ namespace BetterTabs
                 }
             }
         }
-        public Control SelectedContent
+        public UIElement SelectedContent
         {
             get
             {
@@ -292,6 +292,7 @@ namespace BetterTabs
                     ClearSelected();
                     tab.SetSelected(true);
                     OnSelectedTabChanged(oldSelection, tab);
+                    NotifySelectedChanged();
                 }
             }
             else

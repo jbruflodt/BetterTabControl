@@ -108,7 +108,7 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
 
-        <Grid x:Name="tabBarGrid" Margin="0,0,0,3" AllowDrop="True">
+        <Grid x:Name="tabBarGrid" Margin="0" AllowDrop="True">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="3" MaxHeight="3" MinHeight="3"/>
@@ -128,10 +128,10 @@
                 <Rectangle x:Name="filler" Fill="{Binding BarBackgroundColor, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}" Margin="20,0,760,0" Grid.Column="2" PreviewDragOver="Filler_PreviewDragOver"/>
 
             </Grid>
-            <Rectangle x:Name="ribbon" Fill="{Binding RibbonColor, ElementName=betterTabControl}" Height="3" Margin="0,27,0,0" Grid.ColumnSpan="2"/>
+            <Rectangle x:Name="ribbon" Fill="{Binding RibbonColor, ElementName=betterTabControl}" Height="3" Margin="0" Grid.ColumnSpan="2" Grid.Row="1"/>
         </Grid>
+        <ContentControl x:Name="currentContent" Content="{Binding SelectedContent, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}" Grid.Row="1" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
 
-        <ContentControl x:Name="contentPanel" RenderTransformOrigin="0.5,0.5" Grid.Row="1" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Content="{Binding SelectedContent, Mode=OneWay}" DataContext="{Binding ElementName=betterTabControl, Mode=OneWay}"/>
 
     </Grid>
 </UserControl>
