@@ -116,7 +116,6 @@
             <Grid x:Name="tabsGrid" Background="{Binding BarBackgroundColor, ElementName=betterTabControl}" AllowDrop="True">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="3"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -128,7 +127,7 @@
                 <Rectangle x:Name="filler" Fill="{Binding BarBackgroundColor, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}" Margin="20,0,760,0" Grid.Column="2" PreviewDragOver="Filler_PreviewDragOver"/>
 
             </Grid>
-            <Rectangle x:Name="ribbon" Fill="{Binding RibbonColor, ElementName=betterTabControl}" Height="3" Margin="0" Grid.ColumnSpan="2" Grid.Row="1"/>
+            <Rectangle x:Name="ribbon" Fill="{Binding RibbonColor, ElementName=betterTabControl}" Height="3" Margin="0" Grid.Row="1"/>
         </Grid>
         <ContentControl x:Name="currentContent" Content="{Binding SelectedContent, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}" Grid.Row="1" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
 
