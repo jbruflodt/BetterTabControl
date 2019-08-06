@@ -15,8 +15,8 @@
     <RepositoryUrl>https://github.com/jbruflodt/BetterTabControl.git</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <AssemblyVersion>1.0.19213.1636</AssemblyVersion>
-    <FileVersion>1.0.19213.1636</FileVersion>
+    <AssemblyVersion>1.0.19218.1852</AssemblyVersion>
+    <FileVersion>1.0.19218.1852</FileVersion>
     <Version>$(AssemblyVersion)</Version>
     <PackageVersion>$(AssemblyVersion)</PackageVersion>
     <ShouldCreateLogs>True</ShouldCreateLogs>

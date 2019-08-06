@@ -792,7 +792,18 @@ namespace BetterTabs
                 ((INotifyCollectionChanged)collection).CollectionChanged -= value;
             }
         }
-
+        public Tab GetTabFromContent(UIElement tabContent)
+        {
+            if (tabContent == null)
+                throw new ArgumentNullException("tabContent");
+            else
+            {
+                return this.collection.First((thisTab) =>
+                    {
+                        return ReferenceEquals(tabContent, thisTab.TabContent);
+                    });
+            }
+        }
         public void Add(Tab item)
         {
             if(item.Selected)
