@@ -370,7 +370,7 @@ namespace BetterTabs
                     tempTab.SetSelected(false);
             }
         }
-        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        internal void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             Tab thisTab = (Tab)((FrameworkElement)sender).DataContext;
             CancelableTabEventArgs eventArgs = new CancelableTabEventArgs();
@@ -389,7 +389,7 @@ namespace BetterTabs
             }
         }
 
-        private void TabBackground_MouseEnter(object sender, MouseEventArgs e)
+        internal void TabBackground_MouseEnter(object sender, MouseEventArgs e)
         {
             /*Tab thisTab = (Tab)((FrameworkElement)sender).DataContext;
             if (draggedTab != null)
@@ -411,7 +411,7 @@ namespace BetterTabs
 
         }
 
-        private void TabButton_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        internal void TabButton_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             Button senderButton = (Button)sender;
             Tab thisTab = (Tab)senderButton.DataContext;
@@ -436,13 +436,13 @@ namespace BetterTabs
             }
         }
 
-        private void BetterTabControl_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        internal void BetterTabControl_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             draggedTab = null;
             dragStart = null;
         }
 
-        private void BetterTabControl_PreviewMouseMove(object sender, MouseEventArgs e)
+        internal void BetterTabControl_PreviewMouseMove(object sender, MouseEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Released)
             {
@@ -455,7 +455,7 @@ namespace BetterTabs
         {
             return Math.Sqrt(Math.Pow((end.X - start.X), 2) + Math.Pow((end.Y - start.Y), 2));
         }
-        private void TabsPanel_PreviewMouseMove(object sender, MouseEventArgs e)
+        internal void TabsPanel_PreviewMouseMove(object sender, MouseEventArgs e)
         {
             IInputElement inputElement = tabsPanel.InputHitTest(e.GetPosition(tabsPanel));
             if (dragStart != null && DragDistance(dragStart.Value, e.GetPosition(null)) > SystemParameters.MinimumHorizontalDragDistance)
@@ -483,7 +483,7 @@ namespace BetterTabs
             }
         }
 
-        private void TabBackground_PreviewDragOver(object sender, DragEventArgs e)
+        internal void TabBackground_PreviewDragOver(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(typeof(Tab)))
             {
@@ -499,7 +499,7 @@ namespace BetterTabs
         }
 
 
-        private void NewTab_PreviewDragOver(object sender, DragEventArgs e)
+        internal void NewTab_PreviewDragOver(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(typeof(Tab)))
             {
@@ -510,7 +510,7 @@ namespace BetterTabs
             }
         }
 
-        private void BaseGrid_PreviewMouseMove(object sender, MouseEventArgs e)
+        internal void BaseGrid_PreviewMouseMove(object sender, MouseEventArgs e)
         {
             //Console.WriteLine(baseGrid.InputHitTest(e.GetPosition(baseGrid)));
         }
@@ -521,7 +521,7 @@ namespace BetterTabs
             return HitTestResultBehavior.Continue;
         }
 
-        private void Filler_PreviewDragOver(object sender, DragEventArgs e)
+        internal void Filler_PreviewDragOver(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(typeof(Tab)))
             {
@@ -590,6 +590,88 @@ namespace BetterTabs
             {
                 e.Effects = DragDropEffects.Move;
                 e.Handled = true;
+            }
+        }
+
+        private void TabBackground_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            DependencyObject visualHit = VisualTreeHelper.HitTest(sender as Visual, e.GetPosition(sender as IInputElement)).VisualHit;
+            DependencyObject visualAncestor = visualHit?.FindVisualAncestor(typeof(Button));
+            if (visualAncestor == null || (visualAncestor as Button).Name != "closeButton")
+            {
+                Tab thisTab = (Tab)(sender as FrameworkElement).DataContext;
+                CancelableTabEventArgs eventArgs = new CancelableTabEventArgs();
+                thisTab.OnSelected(eventArgs);
+                if (!eventArgs.Cancel)
+                {
+                    if (!thisTab.Selected)
+                    {
+                        foreach (Tab tempTab in Tabs)
+                        {
+                            if (tempTab.Selected)
+                                tempTab.SetSelected(false);
+                        }
+                        ChangeSelectedTab(thisTab);
+                    }
+                    draggedTab = thisTab;
+                    dragStart = e.GetPosition(null);
+                }
+                thisTab.SetPressed(true);
+            }
+        }
+
+        private void TabBackground_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            Tab thisTab = (Tab)(sender as FrameworkElement).DataContext;
+            thisTab.SetPressed(false);
+        }
+
+        private void TabBackground_MouseLeave(object sender, MouseEventArgs e)
+        {
+            Tab thisTab = null;
+            if ((sender as FrameworkElement).DataContext.GetType().ToString() == "MS.Internal.NamedObject")
+            {
+                thisTab = draggedTab;
+            }
+            else
+                thisTab = (Tab)(sender as FrameworkElement).DataContext;
+            thisTab.SetPressed(false);
+        }
+    }
+    public static class WPFExtensions
+    {
+        public static DependencyObject FindLogicalAncestor(this DependencyObject dp, Type ancestorType)
+        {
+            if (ancestorType == null)
+                throw new ArgumentNullException("ancestorType");
+            else if (!typeof(DependencyObject).IsAssignableFrom(ancestorType))
+                throw new ArgumentException("ancestoryType must be a type that DependencyObject is assignable from");
+            else
+            {
+                DependencyObject testFind = LogicalTreeHelper.GetParent(dp);
+                if (testFind == null)
+                    return null;
+                else if (testFind.GetType() == ancestorType)
+                    return testFind;
+                else
+                    return testFind.FindLogicalAncestor(ancestorType);
+            }
+        }
+        public static DependencyObject FindVisualAncestor(this DependencyObject dp, Type ancestorType)
+        {
+            if (ancestorType == null)
+                throw new ArgumentNullException("ancestorType");
+            else if (!typeof(DependencyObject).IsAssignableFrom(ancestorType))
+                throw new ArgumentException("ancestoryType must be a type that DependencyObject is assignable from");
+            else
+            {
+                DependencyObject testFind = VisualTreeHelper.GetParent(dp);
+                if (testFind == null)
+                    return null;
+                else if (testFind.GetType() == ancestorType)
+                    return testFind;
+                else
+                    return testFind.FindVisualAncestor(ancestorType);
             }
         }
     }

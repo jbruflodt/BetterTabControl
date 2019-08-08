@@ -46,6 +46,12 @@ namespace BetterTabs
             typeof(Tab),
             new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender, new PropertyChangedCallback(OnSelectedChanged))
             );
+        public static readonly DependencyProperty PressedProperty = DependencyProperty.RegisterAttached(
+            "Pressed",
+            typeof(bool),
+            typeof(Tab),
+            new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender)
+            );
         private object tabTitle;
         private UIElement tabContent;
         private Guid id;
@@ -54,6 +60,7 @@ namespace BetterTabs
         private bool selected;
         private TabCollection tabCollection;
         private bool dragging;
+
 
         public object TabTitle
         {
@@ -81,6 +88,10 @@ namespace BetterTabs
         public bool Selected
         {
             get { return (bool)GetValue(SelectedProperty); }
+        }
+        public bool Pressed
+        {
+            get { return (bool)GetValue(PressedProperty); }
         }
         public TabCollection TabCollection
         {
@@ -131,6 +142,7 @@ namespace BetterTabs
         }
         internal void SetSelected(bool value)
         {
+            SetPressed(false);
             if ((bool)GetValue(SelectedProperty) != value)
             {
                 SetValue(SelectedProperty, value);
@@ -145,6 +157,10 @@ namespace BetterTabs
         private void SetID(Guid newID)
         {
             SetValue(IDProperty, newID);
+        }
+        internal void SetPressed(bool pressed)
+        {
+            SetValue(PressedProperty, pressed);
         }
         private static void OnTabTitleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {

@@ -37,13 +37,13 @@
             </Setter>
         </Style>
         <DataTemplate x:Key="TabTemplate" DataType="local:Tab">
-            <Grid x:Name="tabBackground" MinHeight="17" MaxHeight="47" MinWidth="35" MaxWidth="150" Background="{Binding TabBackgroundColor, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}" MouseEnter="TabBackground_MouseEnter" AllowDrop="True" PreviewDragOver="TabBackground_PreviewDragOver">
+            <Grid x:Name="tabBackground" MinHeight="17" MaxHeight="47" MinWidth="35" MaxWidth="150" Background="{Binding TabBackgroundColor, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}" MouseEnter="TabBackground_MouseEnter" AllowDrop="True" PreviewDragOver="TabBackground_PreviewDragOver" PreviewMouseLeftButtonDown="TabBackground_PreviewMouseLeftButtonDown" PreviewMouseLeftButtonUp="TabBackground_PreviewMouseLeftButtonUp" MouseLeave="TabBackground_MouseLeave">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Button x:Name="tabButton" Content="{Binding TabTitle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderBrush="{x:Null}" Foreground="{Binding TabTextColor, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}" Background="{x:Null}" BorderThickness="0" Style="{DynamicResource ButtonStyle}" MinWidth="27" Padding="1" Margin="2,0" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" PreviewMouseLeftButtonDown="TabButton_PreviewMouseLeftButtonDown" Focusable="False"/>
-                <Button x:Name="closeButton" Content="{Binding CloseButtonContent, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}" VerticalAlignment="Stretch" Width="Auto" Grid.Column="1" FontWeight="{DynamicResource BoldFont}" Foreground="{x:Null}" BorderBrush="{x:Null}" Background="{x:Null}" BorderThickness="0" Style="{DynamicResource ButtonStyle}" HorizontalContentAlignment="Stretch" MinWidth="8" Padding="3" Margin="2,0" VerticalContentAlignment="Stretch" Click="CloseButton_Click"/>
+                <Button x:Name="tabButton" Content="{Binding TabTitle}" BorderBrush="{x:Null}" Foreground="{Binding TabTextColor, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}" Background="{x:Null}" BorderThickness="0" Style="{DynamicResource ButtonStyle}" MinWidth="27" Padding="1" Margin="2,0" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Focusable="False"/>
+                <Button x:Name="closeButton" Content="{Binding CloseButtonContent, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}" VerticalAlignment="Stretch" Width="Auto" Grid.Column="1" FontWeight="{DynamicResource BoldFont}" Foreground="{x:Null}" BorderBrush="{x:Null}" Background="{x:Null}" BorderThickness="0" Style="{DynamicResource ButtonStyle}" HorizontalContentAlignment="Stretch" MinWidth="8" Padding="3" Margin="2,0" VerticalContentAlignment="Stretch" Click="CloseButton_Click" Focusable="False"/>
             </Grid>
             <DataTemplate.Triggers>
                 <DataTrigger Binding="{Binding Dragging}" Value="True">
@@ -67,11 +67,11 @@
                     <Setter Property="Foreground" TargetName="closeButton" Value="{Binding MouseOverCloseTabTextColor, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}"/>
                     <Setter Property="Background" TargetName="closeButton" Value="{Binding MouseOverTabBackgroundColor, ConverterParameter=-.25, Converter={StaticResource ChangeColorBrightness}, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}"/>
                 </Trigger>
-                <Trigger Property="IsPressed" Value="True" SourceName="tabButton">
+                <DataTrigger Binding="{Binding Pressed}" Value="True">
                     <Setter Property="Background" TargetName="tabBackground" Value="{Binding MouseOverTabBackgroundColor, ConverterParameter=-.25, Converter={StaticResource ChangeColorBrightness}, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}"/>
                     <Setter Property="Foreground" TargetName="tabButton" Value="{Binding MouseOverTabTextColor, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}"/>
                     <Setter Property="Foreground" TargetName="closeButton" Value="{Binding MouseOverTabTextColor, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}"/>
-                </Trigger>
+                </DataTrigger>
             </DataTemplate.Triggers>
         </DataTemplate>
         <Style x:Key="NewTabButtonStyle" TargetType="{x:Type Button}">

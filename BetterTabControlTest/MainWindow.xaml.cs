@@ -29,6 +29,7 @@ namespace BetterTabControlTest
             {
                 Content = "Tab1"
             };
+            Tabs.Tabs[0].TabTitle = "";
             Tabs.Tabs[1].TabContent = new Button()
             {
                 Content = "Tab2"
