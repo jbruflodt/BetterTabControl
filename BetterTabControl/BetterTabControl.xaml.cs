@@ -427,7 +427,7 @@ namespace BetterTabs
                             if (tempTab.Selected)
                                 tempTab.SetSelected(false);
                         }
-                        thisTab.SetSelected(true);
+                        ChangeSelectedTab(thisTab);
                     }
                     draggedTab = thisTab;
                     dragStart = e.GetPosition(null);
