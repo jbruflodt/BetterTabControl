@@ -8,7 +8,6 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <BetterTabs:BetterTabControl DefaultContentType="{x:Type Button}">
-        </BetterTabs:BetterTabControl>
+        <BetterTabs:BetterTabControl x:Name="Tabs" />
     </Grid>
 </Window>

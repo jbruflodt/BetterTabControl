@@ -23,6 +23,16 @@ namespace BetterTabControlTest
         public MainWindow()
         {
             InitializeComponent();
+            Tabs.AddNewTab();
+            Tabs.AddNewTab();
+            Tabs.Tabs[0].TabContent = new Button()
+            {
+                Content = "Tab1"
+            };
+            Tabs.Tabs[1].TabContent = new Button()
+            {
+                Content = "Tab2"
+            };
         }
     }
 }

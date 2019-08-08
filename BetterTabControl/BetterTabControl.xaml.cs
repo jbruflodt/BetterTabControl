@@ -358,6 +358,7 @@ namespace BetterTabs
                 if (DefaultContentType != null)
                     addedTab.TabContent = (Control)DefaultContentType.GetConstructor(new Type[] { }).Invoke(new object[] { });
                 Tabs.Add(addedTab);
+                ChangeSelectedTab(addedTab);
             }
             AddedNewTab?.Invoke(this, new EventArgs());
         }
