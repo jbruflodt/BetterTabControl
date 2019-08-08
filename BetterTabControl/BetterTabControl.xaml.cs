@@ -24,6 +24,7 @@ namespace BetterTabs
     /// <summary>
     /// Interaction logic for BetterTabControl.xaml
     /// </summary>
+    [TemplatePart(Name = "CurrentContent", Type = typeof(ContentControl))]
     public partial class BetterTabControl : UserControl, INotifyPropertyChanged
     {
         public static RoutedUICommand NextTabCommand = new RoutedUICommand("Next Tab", "NextTab", typeof(BetterTabControl), new InputGestureCollection(new InputGestureCollection { new KeyGesture(Key.Tab, ModifierKeys.Control) }));

@@ -10,23 +10,26 @@ using System.Windows.Media;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
+using System.Windows.Input;
 
 namespace BetterTabs
 {
     [Serializable()]
-    public class Tab : DependencyObject, INotifyPropertyChanged, IComparer<Tab>
+    [TemplatePart(Name = "CloseButton", Type = typeof(System.Windows.Controls.Primitives.ButtonBase))]
+    [TemplatePart(Name = "TitleContent", Type = typeof(ContentPresenter))]
+    public class Tab : HeaderedContentControl, INotifyPropertyChanged, IComparer<Tab>
     {
-        public static readonly DependencyProperty TabTitleProperty = DependencyProperty.RegisterAttached(
+        public static readonly DependencyProperty TabTitleProperty = DependencyProperty.Register(
             "TabTitle",
             typeof(object),
             typeof(Tab),
-            new FrameworkPropertyMetadata("Untitled", FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender, new PropertyChangedCallback(OnTabTitleChanged))
+            new FrameworkPropertyMetadata("Untitled", FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnTabTitleChanged))
             );
-        public static readonly DependencyProperty TabContentProperty = DependencyProperty.RegisterAttached(
+        public static readonly DependencyProperty TabContentProperty = DependencyProperty.Register(
             "TabContent",
-            typeof(UIElement),
+            typeof(object),
             typeof(Tab),
-            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender, new PropertyChangedCallback(OnTabContentChanged))
+            new FrameworkPropertyMetadata(new PropertyChangedCallback(OnTabContentChanged))
             );
         public static readonly DependencyProperty IDProperty = DependencyProperty.RegisterAttached(
             "ID",
@@ -46,7 +49,7 @@ namespace BetterTabs
             typeof(Tab),
             new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender, new PropertyChangedCallback(OnSelectedChanged))
             );
-        public static readonly DependencyProperty PressedProperty = DependencyProperty.RegisterAttached(
+        public static readonly DependencyProperty IsPressedProperty = DependencyProperty.RegisterAttached(
             "Pressed",
             typeof(bool),
             typeof(Tab),
@@ -89,9 +92,9 @@ namespace BetterTabs
         {
             get { return (bool)GetValue(SelectedProperty); }
         }
-        public bool Pressed
+        public bool IsPressed
         {
-            get { return (bool)GetValue(PressedProperty); }
+            get { return (bool)GetValue(IsPressedProperty); }
         }
         public TabCollection TabCollection
         {
@@ -160,7 +163,7 @@ namespace BetterTabs
         }
         internal void SetPressed(bool pressed)
         {
-            SetValue(PressedProperty, pressed);
+            SetValue(IsPressedProperty, pressed);
         }
         private static void OnTabTitleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
@@ -221,6 +224,16 @@ namespace BetterTabs
         public void Close()
         {
             TabClosed?.Invoke(this, new EventArgs());
+        }
+
+        protected override void OnPreviewMouseDown(MouseButtonEventArgs e)
+        {
+            
+        }
+
+        protected override void OnPreviewKeyDown(KeyEventArgs e)
+        {
+            base.OnPreviewKeyDown(e);
         }
     }
     public class TabComparer : IComparer<Tab>

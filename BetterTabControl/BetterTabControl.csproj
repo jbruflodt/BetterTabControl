@@ -66,6 +66,11 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
+  <ItemGroup>
+    <None Update="Themes\Generic.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+  </ItemGroup>
   <Target Name="PushNuGet" AfterTargets="Pack" Condition="'$(Configuration)'=='Release_Package'">
     <Exec Command="nuget push &quot;$(OutputPath)$(PackageId).$(PackageVersion).nupkg&quot; -Source &quot;https://api.nuget.org/v3/index.json&quot;&#xD;&#xA;" />
   </Target>
