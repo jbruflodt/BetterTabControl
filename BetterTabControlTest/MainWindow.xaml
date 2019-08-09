@@ -7,7 +7,15 @@
         xmlns:BetterTabs="clr-namespace:BetterTabs;assembly=BetterTabControl" x:Class="BetterTabControlTest.MainWindow"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
+    <Window.Resources>
+    </Window.Resources>
     <Grid>
-        <BetterTabs:BetterTabControl x:Name="Tabs" />
+        <BetterTabs:BetterTabControl x:Name="Tabs">
+            <BetterTabs:BetterTabControl.Tabs>
+                <BetterTabs:Tab/>
+                <BetterTabs:Tab/>
+                <BetterTabs:Tab/>
+            </BetterTabs:BetterTabControl.Tabs>
+        </BetterTabs:BetterTabControl>
     </Grid>
 </Window>
