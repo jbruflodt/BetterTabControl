@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -245,7 +244,7 @@ namespace BetterTabs
         {
             get
             {
-                foreach(Tab thisTab in Tabs)
+                foreach (Tab thisTab in Tabs)
                 {
                     if (thisTab.IsSelected)
                         return thisTab;
@@ -324,7 +323,7 @@ namespace BetterTabs
         {
             Tabs = new TabCollection(this);
             Tabs.CollectionChanged += TabsCollectionChanged;
-            this.Loaded += BetterTabControl_Loaded;
+            Loaded += BetterTabControl_Loaded;
         }
 
         public void AddNewTab()
@@ -381,7 +380,7 @@ namespace BetterTabs
             if (!eventArgs.Cancel)
             {
                 thisTab.Close();
-                this.Tabs.Remove(thisTab);
+                Tabs.Remove(thisTab);
                 if (Tabs.Count <= 0)
                 {
                     if (AllTabsClosed != null)
@@ -463,7 +462,7 @@ namespace BetterTabs
         {
             DependencyObject visualHit = VisualTreeHelper.HitTest(this as Visual, e.GetPosition(this as IInputElement)).VisualHit;
             DependencyObject visualAncestor = visualHit?.FindVisualAncestor(typeof(Button));
-            if(visualAncestor == null)
+            if (visualAncestor == null)
             {
                 if (e.Data.GetDataPresent(typeof(Tab)))
                 {
@@ -508,7 +507,7 @@ namespace BetterTabs
 
         internal void TabsPanel_PreviewMouseMove(object sender, MouseEventArgs e)
         {
-            IInputElement inputElement = this.InputHitTest(e.GetPosition(this));
+            IInputElement inputElement = InputHitTest(e.GetPosition(this));
             if (dragStart != null && DragDistance(dragStart.Value, e.GetPosition(null)) > SystemParameters.MinimumHorizontalDragDistance)
             {
                 if (draggedTab != null && !doingDragDrop)
@@ -742,9 +741,9 @@ namespace BetterTabs
         /// </returns>
         public static Color ChangeColor(Color color, float correctionFactor)
         {
-            float red = (float)color.R;
-            float green = (float)color.G;
-            float blue = (float)color.B;
+            float red = color.R;
+            float green = color.G;
+            float blue = color.B;
 
             if (correctionFactor < 0)
             {
@@ -947,7 +946,7 @@ namespace BetterTabs
                 item.SetSelected(false);
             if (item.ParentTabControl == null || item.ParentTabControl == parentTabControl)
             {
-                if (!this.Contains(item))
+                if (!Contains(item))
                 {
                     item.SetParentTabControl(parentTabControl);
                     item.Style = parentTabControl.TabStyle;
@@ -963,9 +962,9 @@ namespace BetterTabs
 
         private void Item_TabSelected(object sender, EventArgs e)
         {
-            if(SelectedTab != null)
+            if (SelectedTab != null)
             {
-                foreach(Tab thisTab in this)
+                foreach (Tab thisTab in this)
                 {
                     if (!ReferenceEquals(thisTab, (sender as Tab)) && thisTab.IsSelected)
                         thisTab.SetSelected(false);

@@ -3,11 +3,11 @@
 //      changes to this file can cause errors.
 namespace Expression.Blend.SampleData.SampleDataSource
 {
-    using System; 
+    using System;
     using System.ComponentModel;
 
-// To significantly reduce the sample data footprint in your production application, you can set
-// the DISABLE_SAMPLE_DATA conditional compilation constant and disable sample data at runtime.
+    // To significantly reduce the sample data footprint in your production application, you can set
+    // the DISABLE_SAMPLE_DATA conditional compilation constant and disable sample data at runtime.
 #if DISABLE_SAMPLE_DATA
     internal class SampleDataSource { }
 #else
@@ -18,9 +18,9 @@ namespace Expression.Blend.SampleData.SampleDataSource
 
         protected virtual void OnPropertyChanged(string propertyName)
         {
-            if (this.PropertyChanged != null)
+            if (PropertyChanged != null)
             {
-                this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
         }
 
@@ -36,13 +36,13 @@ namespace Expression.Blend.SampleData.SampleDataSource
             }
         }
 
-        private ItemCollection _Collection = new ItemCollection();
+        private readonly ItemCollection _Collection = new ItemCollection();
 
         public ItemCollection Collection
         {
             get
             {
-                return this._Collection;
+                return _Collection;
             }
         }
     }
@@ -53,9 +53,9 @@ namespace Expression.Blend.SampleData.SampleDataSource
 
         protected virtual void OnPropertyChanged(string propertyName)
         {
-            if (this.PropertyChanged != null)
+            if (PropertyChanged != null)
             {
-                this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
         }
 
@@ -65,15 +65,15 @@ namespace Expression.Blend.SampleData.SampleDataSource
         {
             get
             {
-                return this._Property1;
+                return _Property1;
             }
 
             set
             {
-                if (this._Property1 != value)
+                if (_Property1 != value)
                 {
-                    this._Property1 = value;
-                    this.OnPropertyChanged(nameof(Property1));
+                    _Property1 = value;
+                    OnPropertyChanged(nameof(Property1));
                 }
             }
         }
@@ -84,22 +84,22 @@ namespace Expression.Blend.SampleData.SampleDataSource
         {
             get
             {
-                return this._Property2;
+                return _Property2;
             }
 
             set
             {
-                if (this._Property2 != value)
+                if (_Property2 != value)
                 {
-                    this._Property2 = value;
-                    this.OnPropertyChanged(nameof(Property2));
+                    _Property2 = value;
+                    OnPropertyChanged(nameof(Property2));
                 }
             }
         }
     }
 
     public class ItemCollection : System.Collections.ObjectModel.ObservableCollection<Item>
-    { 
+    {
     }
 #endif
 }

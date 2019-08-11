@@ -5,7 +5,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using System.Windows.Media;
 
 namespace BetterTabs
 {
@@ -80,12 +79,12 @@ namespace BetterTabs
 
         public object TabTitle
         {
-            get { return (object)GetValue(TabTitleProperty); }
+            get { return GetValue(TabTitleProperty); }
             set { SetValue(TabTitleProperty, value); }
         }
         public object TabContent
         {
-            get { return (object)GetValue(TabContentProperty); }
+            get { return GetValue(TabContentProperty); }
             set { SetValue(TabContentProperty, value); }
         }
         public DataTemplate TabContentTemplate
@@ -116,7 +115,7 @@ namespace BetterTabs
         }
         public BetterTabControl ParentTabControl
         {
-            get { return (BetterTabControl)GetValue(ParentTabControlProperty); } 
+            get { return (BetterTabControl)GetValue(ParentTabControlProperty); }
         }
         public bool IsDragging
         {
@@ -138,15 +137,15 @@ namespace BetterTabs
 
         public Tab(string tabTitle, Control tabContent) : base()
         {
-            this.TabTitle = tabTitle;
-            this.TabContent = tabContent;
-            this.SetID(Guid.NewGuid());
+            TabTitle = tabTitle;
+            TabContent = tabContent;
+            SetID(Guid.NewGuid());
             previousIndex = -1;
         }
         public Tab() : this("Untitled", null)
         {
         }
-        
+
 
         private void NotifyPropertyChanged(string propertyName)
         {
@@ -245,7 +244,7 @@ namespace BetterTabs
         protected void OnIsDraggingChanged(bool oldValue, bool newValue)
         {
             NotifyPropertyChanged(nameof(IsDragging));
-            if(TabBackground != null)
+            if (TabBackground != null)
             {
                 TabBackground.IsHitTestVisible = !newValue;
             }
@@ -266,7 +265,7 @@ namespace BetterTabs
         {
             CloseButtonClicked?.Invoke(this, e);
         }
-        
+
         public int Compare(Tab x, Tab y)
         {
             if (x == null)
@@ -303,7 +302,7 @@ namespace BetterTabs
         protected override void OnPreviewKeyUp(KeyEventArgs e)
         {
             base.OnPreviewKeyUp(e);
-            if (e.Key == Key.Space && this.IsPressed && !this.IsSelected)
+            if (e.Key == Key.Space && IsPressed && !IsSelected)
             {
                 SetPressed(false);
                 SetSelected(true);
@@ -312,7 +311,7 @@ namespace BetterTabs
         protected override void OnLostFocus(RoutedEventArgs e)
         {
             base.OnLostFocus(e);
-            if (this.IsPressed)
+            if (IsPressed)
                 SetPressed(false);
         }
         public override void OnApplyTemplate()
@@ -383,7 +382,7 @@ namespace BetterTabs
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            if(ParentTabControl != null)
+            if (ParentTabControl != null)
             {
                 ParentTabControl.CloseButton_Click(this, e);
             }
