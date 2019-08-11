@@ -80,14 +80,14 @@
                         </Button>
                     </Grid>
                     <ControlTemplate.Triggers>
-                        <DataTrigger Binding="{Binding Dragging}" Value="True">
+                        <Trigger Property="IsDragging" Value="True">
                             <Setter Property="IsHitTestVisible" TargetName="TabBackground" Value="False"/>
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding Selected}" Value="True">
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
                             <Setter Property="TextBlock.Foreground" TargetName="TitleContent" Value="{Binding SelectedTabTextColor, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}"/>
                             <Setter Property="Background" TargetName="TabBackground" Value="{Binding SelectedTabBackgroundColor, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}"/>
                             <Setter Property="Foreground" TargetName="CloseButton" Value="{Binding SelectedTabTextColor, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}"/>
-                        </DataTrigger>
+                        </Trigger>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter Property="TextBlock.Foreground" TargetName="TitleContent" Value="{Binding MouseOverTabTextColor, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}"/>
                             <Setter Property="Background" TargetName="TabBackground" Value="{Binding MouseOverTabBackgroundColor, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}"/>

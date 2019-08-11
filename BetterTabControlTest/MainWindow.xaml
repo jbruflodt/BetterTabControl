@@ -10,12 +10,6 @@
     <Window.Resources>
     </Window.Resources>
     <Grid>
-        <BetterTabs:BetterTabControl x:Name="Tabs">
-            <BetterTabs:BetterTabControl.Tabs>
-                <BetterTabs:Tab/>
-                <BetterTabs:Tab/>
-                <BetterTabs:Tab/>
-            </BetterTabs:BetterTabControl.Tabs>
-        </BetterTabs:BetterTabControl>
+        <BetterTabs:BetterTabControl x:Name="Tabs"/>
     </Grid>
 </Window>

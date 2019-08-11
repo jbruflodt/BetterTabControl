@@ -73,7 +73,7 @@ namespace Expression.Blend.SampleData.SampleDataSource
                 if (this._Property1 != value)
                 {
                     this._Property1 = value;
-                    this.OnPropertyChanged("Property1");
+                    this.OnPropertyChanged(nameof(Property1));
                 }
             }
         }
@@ -92,7 +92,7 @@ namespace Expression.Blend.SampleData.SampleDataSource
                 if (this._Property2 != value)
                 {
                     this._Property2 = value;
-                    this.OnPropertyChanged("Property2");
+                    this.OnPropertyChanged(nameof(Property2));
                 }
             }
         }

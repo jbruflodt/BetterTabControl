@@ -9,7 +9,6 @@ using System.Windows.Media;
 
 namespace BetterTabs
 {
-    [Serializable()]
     [TemplatePart(Name = "CloseButton", Type = typeof(ButtonBase))]
     [TemplatePart(Name = "TitleContent", Type = typeof(ContentPresenter))]
     [TemplatePart(Name = "TabBackground", Type = typeof(Panel))]
@@ -44,17 +43,23 @@ namespace BetterTabs
             typeof(Tab),
             new FrameworkPropertyMetadata(0, new PropertyChangedCallback(OnDisplayIndexPropertyChanged))
             );
-        public static readonly DependencyProperty SelectedProperty = DependencyProperty.Register(
-            "Selected",
+        public static readonly DependencyProperty IsSelectedProperty = DependencyProperty.Register(
+            "IsSelected",
             typeof(bool),
             typeof(Tab),
-            new FrameworkPropertyMetadata(false, new PropertyChangedCallback(OnSelectedPropertyChanged))
+            new FrameworkPropertyMetadata(false, new PropertyChangedCallback(OnIsSelectedPropertyChanged))
             );
         public static readonly DependencyProperty IsPressedProperty = DependencyProperty.Register(
-            "Pressed",
+            "IsPressed",
             typeof(bool),
             typeof(Tab),
             new FrameworkPropertyMetadata(false, new PropertyChangedCallback(OnIsPressedPropertyChanged))
+            );
+        public static readonly DependencyProperty IsDraggingProperty = DependencyProperty.Register(
+            "IsDragging",
+            typeof(bool),
+            typeof(Tab),
+            new FrameworkPropertyMetadata(false, new PropertyChangedCallback(OnIsDraggingPropertyChanged))
             );
         public static readonly DependencyProperty ParentTabControlProperty = DependencyProperty.Register(
             "ParentTabControl",
@@ -69,11 +74,9 @@ namespace BetterTabs
             new FrameworkPropertyMetadata(new PropertyChangedCallback(OnTabContentTemplatePropertyChanged))
             );
         private ButtonBase CloseButton;
-        private ContentPresenter TitleContent;
+        protected ContentPresenter TitleContent;
         private Panel TabBackground;
         private int previousIndex;
-        private bool dragging;
-
 
         public object TabTitle
         {
@@ -103,9 +106,9 @@ namespace BetterTabs
                 SetValue(DisplayIndexProperty, value);
             }
         }
-        public bool Selected
+        public bool IsSelected
         {
-            get { return (bool)GetValue(SelectedProperty); }
+            get { return (bool)GetValue(IsSelectedProperty); }
         }
         public bool IsPressed
         {
@@ -115,18 +118,9 @@ namespace BetterTabs
         {
             get { return (BetterTabControl)GetValue(ParentTabControlProperty); } 
         }
-        public bool Dragging
+        public bool IsDragging
         {
-            get
-            {
-                return dragging;
-            }
-            set
-            {
-                bool oldValue = dragging;
-                dragging = value;
-                OnDraggingChanged(oldValue, value);
-            }
+            get { return (bool)GetValue(IsDraggingProperty); }
         }
 
         internal int PreviousIndex { get => previousIndex; set => previousIndex = value; }
@@ -161,9 +155,9 @@ namespace BetterTabs
         internal void SetSelected(bool value)
         {
             SetPressed(false);
-            if ((bool)GetValue(SelectedProperty) != value)
+            if ((bool)GetValue(IsSelectedProperty) != value)
             {
-                SetValue(SelectedProperty, value);
+                SetValue(IsSelectedProperty, value);
             }
         }
         protected internal void SetParentTabControl(BetterTabControl parentTabControl)
@@ -173,11 +167,15 @@ namespace BetterTabs
         private void SetID(Guid newID)
         {
             SetValue(IDProperty, newID);
-            NotifyPropertyChanged("ID");
+            NotifyPropertyChanged(nameof(ID));
         }
         protected internal void SetPressed(bool pressed)
         {
             SetValue(IsPressedProperty, pressed);
+        }
+        protected internal void SetDragging(bool pressed)
+        {
+            SetValue(IsDraggingProperty, pressed);
         }
         private static void OnTabTitlePropertyChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
@@ -204,10 +202,15 @@ namespace BetterTabs
             Tab localTab = (Tab)sender;
             localTab.OnDisplayIndexChanged((int)e.OldValue, (int)e.NewValue);
         }
-        private static void OnSelectedPropertyChanged(object sender, DependencyPropertyChangedEventArgs e)
+        private static void OnIsSelectedPropertyChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             Tab localTab = (Tab)sender;
-            localTab.OnSelectedChanged((bool)e.OldValue, (bool)e.NewValue);
+            localTab.OnIsSelectedChanged((bool)e.OldValue, (bool)e.NewValue);
+        }
+        private static void OnIsDraggingPropertyChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            Tab localTab = (Tab)sender;
+            localTab.OnIsDraggingChanged((bool)e.OldValue, (bool)e.NewValue);
         }
         private static void OnIsPressedPropertyChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
@@ -217,43 +220,47 @@ namespace BetterTabs
         protected void OnTabTitleChanged(object oldValue, object newValue)
         {
             TabTitleChanged?.Invoke(this, new EventArgs());
-            NotifyPropertyChanged("TabTitle");
+            NotifyPropertyChanged(nameof(TabTitle));
         }
         protected void OnTabContentChanged(object oldValue, object newValue)
         {
             TabContentChanged?.Invoke(this, new EventArgs());
-            NotifyPropertyChanged("TabContent");
+            NotifyPropertyChanged(nameof(TabContent));
         }
         protected void OnTabContentTemplateChanged(DataTemplate oldValue, DataTemplate newValue)
         {
             TabContentTemplateChanged?.Invoke(this, new EventArgs());
-            NotifyPropertyChanged("TabContentTemplate");
+            NotifyPropertyChanged(nameof(TabContentTemplate));
         }
         protected void OnParentTabControlChanged(BetterTabControl oldValue, BetterTabControl newValue)
         {
             ParentTabControlChanged?.Invoke(this, new EventArgs());
-            NotifyPropertyChanged("ParentTabControl");
+            NotifyPropertyChanged(nameof(ParentTabControl));
         }
         protected void OnDisplayIndexChanged(int oldValue, int newValue)
         {
             DisplayIndexchanged?.Invoke(this, new EventArgs());
-            NotifyPropertyChanged("DisplayIndex");
+            NotifyPropertyChanged(nameof(DisplayIndex));
         }
-        protected void OnDraggingChanged(bool oldValue, bool newValue)
+        protected void OnIsDraggingChanged(bool oldValue, bool newValue)
         {
-            NotifyPropertyChanged("Dragging");
+            NotifyPropertyChanged(nameof(IsDragging));
             if(TabBackground != null)
             {
                 TabBackground.IsHitTestVisible = !newValue;
             }
         }
-        protected virtual void OnSelectedChanged(bool oldValue, bool newValue)
+        protected virtual void OnIsSelectedChanged(bool oldValue, bool newValue)
         {
-            NotifyPropertyChanged("Selected");
+            if (newValue)
+                TabSelected?.Invoke(this, new EventArgs());
+            else
+                TabDeselected?.Invoke(this, new EventArgs());
+            NotifyPropertyChanged(nameof(IsSelected));
         }
         protected virtual void OnIsPressedChanged(bool oldValue, bool newValue)
         {
-            NotifyPropertyChanged("IsPressed");
+            NotifyPropertyChanged(nameof(IsPressed));
         }
         protected internal void OnCloseButtonClick(CancelableTabEventArgs e)
         {
@@ -263,9 +270,9 @@ namespace BetterTabs
         public int Compare(Tab x, Tab y)
         {
             if (x == null)
-                throw new ArgumentNullException("x");
+                throw new ArgumentNullException(nameof(x));
             if (y == null)
-                throw new ArgumentNullException("y");
+                throw new ArgumentNullException(nameof(y));
             if (x.DisplayIndex == y.DisplayIndex && x.previousIndex == y.previousIndex)
             {
                 return 0;
@@ -296,7 +303,7 @@ namespace BetterTabs
         protected override void OnPreviewKeyUp(KeyEventArgs e)
         {
             base.OnPreviewKeyUp(e);
-            if (e.Key == Key.Space && this.IsPressed && !this.Selected)
+            if (e.Key == Key.Space && this.IsPressed && !this.IsSelected)
             {
                 SetPressed(false);
                 SetSelected(true);
@@ -387,9 +394,9 @@ namespace BetterTabs
         public int Compare(Tab x, Tab y)
         {
             if (x == null)
-                throw new ArgumentNullException("x");
+                throw new ArgumentNullException(nameof(x));
             if (y == null)
-                throw new ArgumentNullException("y");
+                throw new ArgumentNullException(nameof(y));
             if (x.DisplayIndex == y.DisplayIndex && x.PreviousIndex == y.PreviousIndex)
             {
                 return 0;

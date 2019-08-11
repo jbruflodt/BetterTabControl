@@ -29,7 +29,7 @@ namespace BetterTabs
         public static DependencyObject FindLogicalAncestor(this DependencyObject dp, Type ancestorType)
         {
             if (ancestorType == null)
-                throw new ArgumentNullException("ancestorType");
+                throw new ArgumentNullException(nameof(ancestorType));
             else if (!typeof(DependencyObject).IsAssignableFrom(ancestorType))
                 throw new ArgumentException("ancestoryType must be a type that DependencyObject is assignable from");
             else
@@ -47,7 +47,7 @@ namespace BetterTabs
         public static DependencyObject FindVisualAncestor(this DependencyObject dp, Type ancestorType)
         {
             if (ancestorType == null)
-                throw new ArgumentNullException("ancestorType");
+                throw new ArgumentNullException(nameof(ancestorType));
             else if (!typeof(DependencyObject).IsAssignableFrom(ancestorType))
                 throw new ArgumentException("ancestoryType must be a type that DependencyObject is assignable from");
             else
@@ -73,7 +73,6 @@ namespace BetterTabs
         }
     }
 
-    [Serializable()]
     [TemplatePart(Name = "TabBar", Type = typeof(Panel))]
     [TemplatePart(Name = "TabBarFiller", Type = typeof(UIElement))]
     [TemplatePart(Name = "TabsPresenter", Type = typeof(ItemsControl))]
@@ -176,7 +175,7 @@ namespace BetterTabs
 
         public static RoutedUICommand PreviousTabCommand = new RoutedUICommand("Previous Tab", "PreviousTab", typeof(BetterTabControl), new InputGestureCollection(new InputGestureCollection { new KeyGesture(Key.Tab, ModifierKeys.Control | ModifierKeys.Shift) }));
 
-        private ContentControl CurrentContent;
+        protected ContentControl CurrentContent;
 
         private bool doingDragDrop;
 
@@ -188,13 +187,13 @@ namespace BetterTabs
 
         private bool indexing;
 
-        private ButtonBase NewTabButton;
+        protected ButtonBase NewTabButton;
 
-        private Panel TabBar;
+        protected Panel TabBar;
 
-        private UIElement TabBarFiller;
+        protected UIElement TabBarFiller;
 
-        private ItemsControl TabsPresenter;
+        protected ItemsControl TabsPresenter;
 
         public Brush BarBackgroundColor
         {
@@ -248,7 +247,7 @@ namespace BetterTabs
             {
                 foreach(Tab thisTab in Tabs)
                 {
-                    if (thisTab.Selected)
+                    if (thisTab.IsSelected)
                         return thisTab;
                 }
                 return null;
@@ -358,19 +357,20 @@ namespace BetterTabs
             }
         }
 
-        internal void BetterTabControl_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        protected override void OnPreviewMouseLeftButtonUp(MouseButtonEventArgs e)
         {
             draggedTab = null;
             dragStart = null;
+            base.OnPreviewMouseLeftButtonUp(e);
         }
-
-        internal void BetterTabControl_PreviewMouseMove(object sender, MouseEventArgs e)
+        protected override void OnPreviewMouseMove(MouseEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Released)
             {
                 draggedTab = null;
                 dragStart = null;
             }
+            base.OnPreviewMouseMove(e);
         }
 
         internal void CloseButton_Click(object sender, RoutedEventArgs e)
@@ -397,8 +397,11 @@ namespace BetterTabs
             if (e.Data.GetDataPresent(typeof(Tab)))
             {
                 Tab localDraggedTab = (Tab)e.Data.GetData(typeof(Tab));
-                Tabs.Move(Tabs.IndexOf(localDraggedTab), Tabs.Count - 1);
-                UpdateLayout();
+                if (Tabs.IndexOf(localDraggedTab) != Tabs.Count - 1)
+                {
+                    Tabs.Move(Tabs.IndexOf(localDraggedTab), Tabs.Count - 1);
+                    UpdateLayout();
+                }
                 e.Handled = true;
             }
         }
@@ -408,8 +411,11 @@ namespace BetterTabs
             if (e.Data.GetDataPresent(typeof(Tab)))
             {
                 Tab localDraggedTab = (Tab)e.Data.GetData(typeof(Tab));
-                Tabs.Move(Tabs.IndexOf(localDraggedTab), Tabs.Count - 1);
-                UpdateLayout();
+                if (Tabs.IndexOf(localDraggedTab) != Tabs.Count - 1)
+                {
+                    Tabs.Move(Tabs.IndexOf(localDraggedTab), Tabs.Count - 1);
+                    UpdateLayout();
+                }
                 e.Handled = true;
             }
         }
@@ -429,7 +435,7 @@ namespace BetterTabs
 
         internal void TabBackground_MouseLeave(object sender, MouseEventArgs e)
         {
-            Tab thisTab = null;
+            Tab thisTab;
             if (sender.GetType().ToString() == "MS.Internal.NamedObject")
             {
                 thisTab = draggedTab;
@@ -453,7 +459,25 @@ namespace BetterTabs
                 e.Handled = true;
             }
         }
-
+        protected override void OnPreviewDragOver(DragEventArgs e)
+        {
+            DependencyObject visualHit = VisualTreeHelper.HitTest(this as Visual, e.GetPosition(this as IInputElement)).VisualHit;
+            DependencyObject visualAncestor = visualHit?.FindVisualAncestor(typeof(Button));
+            if(visualAncestor == null)
+            {
+                if (e.Data.GetDataPresent(typeof(Tab)))
+                {
+                    Tab localDraggedTab = (Tab)e.Data.GetData(typeof(Tab));
+                    if (Tabs.IndexOf(localDraggedTab) != Tabs.Count - 1)
+                    {
+                        Tabs.Move(Tabs.IndexOf(localDraggedTab), Tabs.Count - 1);
+                        UpdateLayout();
+                    }
+                    e.Handled = true;
+                }
+            }
+            base.OnPreviewDragOver(e);
+        }
         internal void TabBackground_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             DependencyObject visualHit = VisualTreeHelper.HitTest(sender as Visual, e.GetPosition(sender as IInputElement)).VisualHit;
@@ -461,11 +485,11 @@ namespace BetterTabs
             if (visualAncestor == null || (visualAncestor as Button).Name != "closeButton")
             {
                 Tab thisTab = (Tab)sender;
-                if (!thisTab.Selected)
+                if (!thisTab.IsSelected)
                 {
                     foreach (Tab tempTab in Tabs)
                     {
-                        if (tempTab.Selected)
+                        if (tempTab.IsSelected)
                             tempTab.SetSelected(false);
                     }
                     ChangeSelectedTab(thisTab);
@@ -482,22 +506,6 @@ namespace BetterTabs
             thisTab.SetPressed(false);
         }
 
-        internal void TabButton_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            Tab thisTab = (Tab)sender;
-            if (!thisTab.Selected)
-            {
-                foreach (Tab tempTab in Tabs)
-                {
-                    if (tempTab.Selected)
-                        tempTab.SetSelected(false);
-                }
-                ChangeSelectedTab(thisTab);
-            }
-            draggedTab = thisTab;
-            dragStart = e.GetPosition(null);
-        }
-
         internal void TabsPanel_PreviewMouseMove(object sender, MouseEventArgs e)
         {
             IInputElement inputElement = this.InputHitTest(e.GetPosition(this));
@@ -506,6 +514,7 @@ namespace BetterTabs
                 if (draggedTab != null && !doingDragDrop)
                 {
                     doingDragDrop = true;
+                    draggedTab.SetDragging(true);
                     Tabs.Remove(draggedTab);
                     DragDropEffects dragResult = DragDrop.DoDragDrop(this, draggedTab, DragDropEffects.Move);
                     doingDragDrop = false;
@@ -521,6 +530,7 @@ namespace BetterTabs
                             Tabs[x].DisplayIndex = x;
                         }
                     }
+                    draggedTab.SetDragging(false);
                     draggedTab = null;
                 }
             }
@@ -638,7 +648,7 @@ namespace BetterTabs
         {
             foreach (Tab tempTab in Tabs)
             {
-                if (tempTab.Selected)
+                if (tempTab.IsSelected)
                     tempTab.SetSelected(false);
             }
         }
@@ -661,9 +671,9 @@ namespace BetterTabs
 
         private void NotifySelectedChanged()
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectedTab"));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectedContent"));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectedContentTemplate"));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedTab)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedContent)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedContentTemplate)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectedIndex"));
         }
         private void ReindexTabs()
@@ -688,7 +698,7 @@ namespace BetterTabs
                 {
                     foreach (Tab thisTab in e.OldItems)
                     {
-                        if (thisTab.Selected)
+                        if (thisTab.IsSelected)
                         {
                             thisTab.SetSelected(false);
                             if (thisTab.DisplayIndex > 0 && Tabs.Count > thisTab.DisplayIndex - 1)
@@ -730,7 +740,7 @@ namespace BetterTabs
         /// <returns>
         /// Corrected <see cref="Color"/> structure.
         /// </returns>
-        public Color ChangeColor(Color color, float correctionFactor)
+        public static Color ChangeColor(Color color, float correctionFactor)
         {
             float red = (float)color.R;
             float green = (float)color.G;
@@ -757,11 +767,11 @@ namespace BetterTabs
         {
             float changeValue = 0;
             if (!parameter.GetType().GetTypeInfo().IsAssignableFrom(typeof(float)) && !float.TryParse(parameter.ToString(), out changeValue))
-                throw new ArgumentException("parameter must be assignable from float", "parameter");
+                throw new ArgumentException("parameter must be assignable from float", nameof(parameter));
             Color color = Colors.Transparent;
             if (targetType == null)
             {
-                throw new ArgumentNullException("targetType");
+                throw new ArgumentNullException(nameof(targetType));
             }
             if (!targetType.GetTypeInfo().IsAssignableFrom(typeof(Color)) && !targetType.GetTypeInfo().IsAssignableFrom(typeof(SolidColorBrush)))
             {
@@ -769,7 +779,7 @@ namespace BetterTabs
                 {
                     return value;
                 }
-                throw new ArgumentException("targetType must be assignable from Color or SolidColorBrush", "targetType");
+                throw new ArgumentException("targetType must be assignable from Color or SolidColorBrush", nameof(targetType));
             }
             if (value == null)
             {
@@ -784,7 +794,7 @@ namespace BetterTabs
                 {
                     return value;
                 }
-                throw new ArgumentException("value must be assignable to Color or SolidColorBrush", "value");
+                throw new ArgumentException("value must be assignable to Color or SolidColorBrush", nameof(value));
             }
             if (typeof(Color).GetTypeInfo().IsAssignableFrom(value.GetType()))
                 color = (Color)value;
@@ -800,11 +810,11 @@ namespace BetterTabs
         {
             float changeValue = 0;
             if (!parameter.GetType().GetTypeInfo().IsAssignableFrom(typeof(float)) && !float.TryParse(parameter.ToString(), out changeValue))
-                throw new ArgumentException("parameter must be assignable from float", "parameter");
+                throw new ArgumentException("parameter must be assignable from float", nameof(parameter));
             Color color = Colors.Transparent;
             if (targetType == null)
             {
-                throw new ArgumentNullException("targetType");
+                throw new ArgumentNullException(nameof(targetType));
             }
             if (!targetType.GetTypeInfo().IsAssignableFrom(typeof(Color)) && !targetType.GetTypeInfo().IsAssignableFrom(typeof(SolidColorBrush)))
             {
@@ -812,7 +822,7 @@ namespace BetterTabs
                 {
                     return value;
                 }
-                throw new ArgumentException("targetType must be assignable from Color or SolidColorBrush", "targetType");
+                throw new ArgumentException("targetType must be assignable from Color or SolidColorBrush", nameof(targetType));
             }
             if (value == null)
             {
@@ -827,7 +837,7 @@ namespace BetterTabs
                 {
                     return value;
                 }
-                throw new ArgumentException("value must be assignable to Color or SolidColorBrush", "value");
+                throw new ArgumentException("value must be assignable to Color or SolidColorBrush", nameof(value));
             }
             if (typeof(Color).GetTypeInfo().IsAssignableFrom(value.GetType()))
                 color = (Color)value;
@@ -868,6 +878,9 @@ namespace BetterTabs
     public sealed class TabCollection : ObservableCollection<Tab>
     {
         private readonly BetterTabControl parentTabControl;
+        private Tab selectedTab;
+
+        public Tab SelectedTab { get => selectedTab; }
 
         public TabCollection() : base()
         {
@@ -887,37 +900,38 @@ namespace BetterTabs
             this.parentTabControl = parentTabControl;
         }
 
-        public new void Add(Tab item)
-        {
-            if (item.Selected)
-                item.SetSelected(false);
-            if (item.ParentTabControl == null || item.ParentTabControl == parentTabControl)
-            {
-                if (!this.Contains(item))
-                {
-                    ((ObservableCollection<Tab>)this).Add(item);
-                    item.SetParentTabControl(parentTabControl);
-                    item.Style = parentTabControl.TabStyle;
-                }
-                else
-                    throw new ArgumentException("Tab is already in this collection");
-            }
-            else
-                throw new ArgumentException("Tab is already in this collection");
-        }
-
-        public new void Clear()
+        //public new void Add(Tab item)
+        //{
+        //    if (item.IsSelected)
+        //        item.SetSelected(false);
+        //    if (item.ParentTabControl == null || item.ParentTabControl == parentTabControl)
+        //    {
+        //        if (!this.Contains(item))
+        //        {
+        //            item.SetParentTabControl(parentTabControl);
+        //            item.Style = parentTabControl.TabStyle;
+        //            ((ObservableCollection<Tab>)this).Add(item);
+        //        }
+        //        else
+        //            throw new ArgumentException("Tab is already in this collection");
+        //    }
+        //    else
+        //        throw new ArgumentException("Tab is already in this collection");
+        //}
+        protected override void ClearItems()
         {
             foreach (Tab thisTab in this)
             {
                 thisTab.SetParentTabControl(null);
+                thisTab.TabSelected -= Item_TabSelected;
+                thisTab.SetSelected(false);
             }
-            ((ObservableCollection<Tab>)this).Clear();
+            base.ClearItems();
         }
         public Tab GetTabFromContent(UIElement tabContent)
         {
             if (tabContent == null)
-                throw new ArgumentNullException("tabContent");
+                throw new ArgumentNullException(nameof(tabContent));
             else
             {
                 return this.First((thisTab) =>
@@ -927,17 +941,18 @@ namespace BetterTabs
             }
         }
 
-        public new void Insert(int index, Tab item)
+        protected override void InsertItem(int index, Tab item)
         {
-            if (item.Selected)
+            if (item.IsSelected)
                 item.SetSelected(false);
             if (item.ParentTabControl == null || item.ParentTabControl == parentTabControl)
             {
                 if (!this.Contains(item))
                 {
-                    ((ObservableCollection<Tab>)this).Insert(index, item);
                     item.SetParentTabControl(parentTabControl);
                     item.Style = parentTabControl.TabStyle;
+                    item.TabSelected += Item_TabSelected;
+                    base.InsertItem(index, item);
                 }
                 else
                     throw new ArgumentException("Tab is already in this collection");
@@ -946,16 +961,24 @@ namespace BetterTabs
                 throw new ArgumentException("Tab is already in this collection");
         }
 
-        public new bool Remove(Tab item)
+        private void Item_TabSelected(object sender, EventArgs e)
         {
-            item.SetParentTabControl(null);
-            return ((ObservableCollection<Tab>)this).Remove(item);
+            if(SelectedTab != null)
+            {
+                foreach(Tab thisTab in this)
+                {
+                    if (!ReferenceEquals(thisTab, (sender as Tab)) && thisTab.IsSelected)
+                        thisTab.SetSelected(false);
+                }
+            }
+            selectedTab = (sender as Tab);
         }
 
-        public new void RemoveAt(int index)
+        protected override void RemoveItem(int index)
         {
+            this[index].TabSelected -= Item_TabSelected;
             this[index].SetParentTabControl(null);
-            ((ObservableCollection<Tab>)this).RemoveAt(index);
+            base.RemoveItem(index);
         }
     }
 }
