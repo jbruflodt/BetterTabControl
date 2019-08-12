@@ -172,7 +172,7 @@
                             </DockPanel>
                             <Rectangle x:Name="Ribbon" Fill="{Binding RibbonColor, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}" Height="3" Margin="0" Grid.Row="1"/>
                         </Grid>
-                        <ContentControl x:Name="CurrentContent" Content="{Binding SelectedContent, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}" Grid.Row="1" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" ContentTemplate="{Binding SelectedContentTemplate, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}"/>
+                        <ContentControl x:Name="CurrentContent" Content="{Binding TabContent}" Grid.Row="1" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" ContentTemplate="{Binding TabContentTemplate}" DataContext="{Binding SelectedTab, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}"/>
 
 
                     </Grid>
