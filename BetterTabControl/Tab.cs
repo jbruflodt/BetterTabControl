@@ -91,7 +91,7 @@ namespace BetterTabs
         public DataTemplate TabContentTemplate
         {
             get { return (DataTemplate)GetValue(TabContentTemplateProperty); }
-            set { SetValue(TabContentProperty, value); }
+            set { SetValue(TabContentTemplateProperty, value); }
         }
         public Guid ID
         {
