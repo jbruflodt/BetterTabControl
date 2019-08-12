@@ -77,17 +77,17 @@ namespace BetterTabs
     [TemplatePart(Name = "TabBarFiller", Type = typeof(UIElement))]
     [TemplatePart(Name = "TabsPresenter", Type = typeof(ItemsControl))]
     [TemplatePart(Name = "NewTabButton", Type = typeof(ButtonBase))]
-    [TemplatePart(Name = "CurrentContent", Type = typeof(ContentControl))]
+    [TemplatePart(Name = "CurrentContent", Type = typeof(ContentPresenter))]
     public partial class BetterTabControl : Control, INotifyPropertyChanged
     {
-        public static readonly DependencyProperty BarBackgroundColorProperty = DependencyProperty.Register(
+        public static readonly DependencyProperty BarBackgroundColorProperty = DependencyProperty.RegisterAttached(
             "BarBackgroundColor",
             typeof(Brush),
             typeof(BetterTabControl),
             new FrameworkPropertyMetadata(SystemColors.MenuBarBrush, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender)
             );
 
-        public static readonly DependencyProperty CloseButtonContentProperty = DependencyProperty.Register(
+        public static readonly DependencyProperty CloseButtonContentProperty = DependencyProperty.RegisterAttached(
             "CloseButtonContent",
             typeof(object),
             typeof(BetterTabControl),
@@ -101,21 +101,21 @@ namespace BetterTabs
             new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender)
             );
 
-        public static readonly DependencyProperty MouseOverCloseTabTextColorProperty = DependencyProperty.Register(
+        public static readonly DependencyProperty MouseOverCloseTabTextColorProperty = DependencyProperty.RegisterAttached(
             "MouseOverCloseTabTextColor",
             typeof(Brush),
             typeof(BetterTabControl),
             new FrameworkPropertyMetadata(Brushes.Red, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender)
             );
 
-        public static readonly DependencyProperty MouseOverTabBackgroundColorProperty = DependencyProperty.Register(
+        public static readonly DependencyProperty MouseOverTabBackgroundColorProperty = DependencyProperty.RegisterAttached(
             "MouseOverTabBackgroundColor",
             typeof(Brush),
             typeof(BetterTabControl),
             new FrameworkPropertyMetadata(SystemColors.HighlightBrush, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender)
             );
 
-        public static readonly DependencyProperty MouseOverTabTextColorProperty = DependencyProperty.Register(
+        public static readonly DependencyProperty MouseOverTabTextColorProperty = DependencyProperty.RegisterAttached(
             "MouseOverTabTextColor",
             typeof(Brush),
             typeof(BetterTabControl),
@@ -129,28 +129,28 @@ namespace BetterTabs
             new FrameworkPropertyMetadata("+", FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender)
             );
 
-        public static readonly DependencyProperty RibbonColorProperty = DependencyProperty.Register(
+        public static readonly DependencyProperty RibbonColorProperty = DependencyProperty.RegisterAttached(
             "RibbonColor",
             typeof(Brush),
             typeof(BetterTabControl),
             new FrameworkPropertyMetadata(SystemColors.HighlightBrush, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender)
             );
 
-        public static readonly DependencyProperty SelectedTabBackgroundColorProperty = DependencyProperty.Register(
+        public static readonly DependencyProperty SelectedTabBackgroundColorProperty = DependencyProperty.RegisterAttached(
             "SelectedTabBackgroundColor",
             typeof(Brush),
             typeof(BetterTabControl),
             new FrameworkPropertyMetadata(SystemColors.HighlightBrush, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender)
             );
 
-        public static readonly DependencyProperty SelectedTabTextColorProperty = DependencyProperty.Register(
+        public static readonly DependencyProperty SelectedTabTextColorProperty = DependencyProperty.RegisterAttached(
             "SelectedTabTextColor",
             typeof(Brush),
             typeof(BetterTabControl),
             new FrameworkPropertyMetadata(Brushes.White, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender)
             );
 
-        public static readonly DependencyProperty TabBackgroundColorProperty = DependencyProperty.Register(
+        public static readonly DependencyProperty TabBackgroundColorProperty = DependencyProperty.RegisterAttached(
             "TabBackgroundColor",
             typeof(Brush),
             typeof(BetterTabControl),
@@ -164,18 +164,36 @@ namespace BetterTabs
             new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender)
             );
 
-        public static readonly DependencyProperty TabTextColorProperty = DependencyProperty.Register(
+        public static readonly DependencyProperty TabTextColorProperty = DependencyProperty.RegisterAttached(
             "TabTextColor",
             typeof(Brush),
             typeof(BetterTabControl),
             new FrameworkPropertyMetadata(SystemColors.ControlTextBrush, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender)
+            );
+        public static readonly DependencyProperty SelectedTabProperty = DependencyProperty.Register(
+            "SelectedTab",
+            typeof(Tab),
+            typeof(BetterTabControl),
+            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender)
+            );
+        public static readonly DependencyProperty SelectedContentProperty = DependencyProperty.Register(
+            "SelectedContent",
+            typeof(object),
+            typeof(BetterTabControl),
+            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender)
+            );
+        public static readonly DependencyProperty SelectedContentTemplateProperty = DependencyProperty.Register(
+            "SelectedContentTemplate",
+            typeof(DataTemplate),
+            typeof(BetterTabControl),
+            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender)
             );
 
         public static RoutedUICommand NextTabCommand = new RoutedUICommand("Next Tab", "NextTab", typeof(BetterTabControl), new InputGestureCollection(new InputGestureCollection { new KeyGesture(Key.Tab, ModifierKeys.Control) }));
 
         public static RoutedUICommand PreviousTabCommand = new RoutedUICommand("Previous Tab", "PreviousTab", typeof(BetterTabControl), new InputGestureCollection(new InputGestureCollection { new KeyGesture(Key.Tab, ModifierKeys.Control | ModifierKeys.Shift) }));
 
-        protected ContentControl CurrentContent;
+        protected ContentPresenter CurrentContent;
 
         private bool doingDragDrop;
 
@@ -237,29 +255,22 @@ namespace BetterTabs
             set { SetValue(RibbonColorProperty, value); }
         }
 
-        public object SelectedContent => SelectedTab?.TabContent;
+        public object SelectedContent
+        {
+            get { return (Tab)GetValue(SelectedContentProperty); }
+        }
 
-        public object SelectedContentTemplate => SelectedTab?.TabContentTemplate;
+        public DataTemplate SelectedContentTemplate
+        {
+            get { return (DataTemplate)GetValue(SelectedContentTemplateProperty); }
+        }
 
         public Tab SelectedTab
         {
-            get
-            {
-                foreach(Tab thisTab in Tabs)
-                {
-                    if (thisTab.IsSelected)
-                        return thisTab;
-                }
-                return null;
-            }
+            get { return (Tab)GetValue(SelectedTabProperty); }
             set
             {
-                Tab oldSelection = SelectedTab;
-                if (!OnSelectedTabChanging(oldSelection, value))
-                {
-                    ChangeSelectedTab(value);
-                    OnSelectedTabChanged(oldSelection, value);
-                }
+                ChangeSelectedTab(value);
             }
         }
 
@@ -279,6 +290,13 @@ namespace BetterTabs
         {
             get { return (Brush)GetValue(TabBackgroundColorProperty); }
             set { SetValue(TabBackgroundColorProperty, value); }
+        }
+        public int SelectedIndex
+        {
+            get
+            {
+                return Tabs.IndexOf(SelectedTab);
+            }
         }
 
         public TabCollection Tabs
@@ -341,7 +359,7 @@ namespace BetterTabs
             TabBarFiller = GetTemplateChild("TabBarFiller") as UIElement;
             TabsPresenter = GetTemplateChild("TabsPresenter") as ItemsControl;
             NewTabButton = GetTemplateChild("NewTabButton") as ButtonBase;
-            CurrentContent = GetTemplateChild("CurrentContent") as ContentControl;
+            CurrentContent = GetTemplateChild("CurrentContent") as ContentPresenter;
             if (TabsPresenter != null)
             {
                 TabsPresenter.PreviewMouseMove += TabsPanel_PreviewMouseMove;
@@ -545,6 +563,9 @@ namespace BetterTabs
                 {
                     ClearSelected();
                     tab.SetSelected(true);
+                    SetValue(SelectedTabProperty, tab);
+                    SetValue(SelectedContentProperty, tab.TabContent);
+                    SetValue(SelectedContentTemplateProperty, tab.TabContentTemplate);
                     OnSelectedTabChanged(oldSelection, tab);
                     NotifySelectedChanged();
                 }
@@ -671,9 +692,6 @@ namespace BetterTabs
 
         private void NotifySelectedChanged()
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedTab)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedContent)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedContentTemplate)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectedIndex"));
         }
         private void ReindexTabs()

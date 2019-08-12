@@ -129,9 +129,9 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="3" MaxHeight="3" MinHeight="3"/>
                             </Grid.RowDefinitions>
-                            <DockPanel x:Name="tabsGrid" Background="{Binding BarBackgroundColor, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}" AllowDrop="True" LastChildFill="False" Height="Auto" Width="Auto">
+                            <DockPanel x:Name="tabsGrid" Background="{TemplateBinding BarBackgroundColor}" AllowDrop="True" LastChildFill="False" Height="Auto" Width="Auto">
 
-                                <ItemsControl x:Name="TabsPresenter" HorizontalAlignment="Stretch" Height="Auto" VerticalAlignment="Stretch" Width="Auto" ItemsSource="{Binding Tabs, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}" VerticalContentAlignment="Stretch">
+                                <ItemsControl x:Name="TabsPresenter" HorizontalAlignment="Stretch" Height="Auto" VerticalAlignment="Stretch" Width="Auto" ItemsSource="{TemplateBinding Tabs}" VerticalContentAlignment="Stretch">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <StackPanel IsItemsHost="True" Orientation="Horizontal"/>
@@ -140,7 +140,7 @@
                                 </ItemsControl>
 
 
-                                <Button x:Name="NewTabButton" Content="{Binding NewTabDisplayText, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}" Height="27" MinWidth="20" FontWeight="Bold" MinHeight="17" MaxHeight="47" MaxWidth="50" FocusVisualStyle="{x:Null}" Width="20">
+                                <Button x:Name="NewTabButton" Content="{TemplateBinding NewTabDisplayText}" Height="27" MinWidth="20" FontWeight="Bold" MinHeight="17" MaxHeight="47" MaxWidth="50" FocusVisualStyle="{x:Null}" Width="20">
                                     <Button.Style>
                                         <Style TargetType="{x:Type Button}">
                                             <Setter Property="Padding" Value="1"/>
@@ -170,9 +170,9 @@
                                 </Button>
 
                             </DockPanel>
-                            <Rectangle x:Name="Ribbon" Fill="{Binding RibbonColor, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}" Height="3" Margin="0" Grid.Row="1"/>
+                            <Rectangle x:Name="Ribbon" Fill="{TemplateBinding RibbonColor}" Height="3" Margin="0" Grid.Row="1"/>
                         </Grid>
-                        <ContentControl x:Name="CurrentContent" Content="{Binding TabContent}" Grid.Row="1" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" ContentTemplate="{Binding TabContentTemplate}" DataContext="{Binding SelectedTab, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}"/>
+                        <ContentControl x:Name="CurrentContent" Content="{TemplateBinding SelectedContent}" Grid.Row="1" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" ContentTemplate="{TemplateBinding SelectedContentTemplate}" DataContext="{TemplateBinding SelectedTab}"/>
 
 
                     </Grid>
