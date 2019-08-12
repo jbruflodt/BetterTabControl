@@ -4,12 +4,20 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BetterTabControlTest"
+        xmlns:System="clr-namespace:System;assembly=mscorlib"
         xmlns:BetterTabs="clr-namespace:BetterTabs;assembly=BetterTabControl" x:Class="BetterTabControlTest.MainWindow"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Window.Resources>
+        <DataTemplate x:Key="TestDataTemplate" DataType="{x:Type System:String}">
+            <Button Content="{Binding Mode=OneWay}" Click="Button_Click"/>
+        </DataTemplate>
     </Window.Resources>
     <Grid>
-        <BetterTabs:BetterTabControl x:Name="Tabs"/>
+        <BetterTabs:BetterTabControl x:Name="Tabs">
+            <BetterTabs:BetterTabControl.Tabs>
+                <BetterTabs:Tab TabContentTemplate="{DynamicResource TestDataTemplate}" TabContent="Test"/>
+            </BetterTabs:BetterTabControl.Tabs>
+        </BetterTabs:BetterTabControl>
     </Grid>
 </Window>
