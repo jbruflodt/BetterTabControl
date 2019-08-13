@@ -946,7 +946,7 @@ namespace BetterTabs
             }
             base.ClearItems();
         }
-        public Tab GetTabFromContent(UIElement tabContent)
+        public Tab GetTabFromContent(object tabContent)
         {
             if (tabContent == null)
                 throw new ArgumentNullException(nameof(tabContent));
