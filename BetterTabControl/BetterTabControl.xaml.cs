@@ -348,9 +348,11 @@ namespace BetterTabs
             Tab addedTab = new Tab();
             Tabs.Add(addedTab);
             ChangeSelectedTab(addedTab);
-            AddedNewTab?.Invoke(this, new AddTabEventArgs(addedTab));
         }
-
+        internal protected virtual void OnTabAdded(AddTabEventArgs e)
+        {
+            AddedNewTab?.Invoke(this, e);
+        }
         public override void OnApplyTemplate()
         {
             TabBar = GetTemplateChild("TabBar") as Panel;
@@ -978,6 +980,7 @@ namespace BetterTabs
                     item.Style = parentTabControl.TabStyle;
                     item.TabSelected += Item_TabSelected;
                     base.InsertItem(index, item);
+                    parentTabControl.OnTabAdded(new AddTabEventArgs(item));
                 }
                 else
                     throw new ArgumentException("Tab is already in this collection");
