@@ -18,8 +18,6 @@ namespace BetterTabs
 {
     public delegate void AddTabEventHandler(object sender, AddTabEventArgs e);
 
-    public delegate void CancelableTabEventHandler(object sender, CancelableTabEventArgs e);
-
     public delegate void SelectedTabChangedEventHandler(object sender, SelectedTabChangedEventArgs e);
 
     public delegate void SelectedTabChangingEventHandler(object sender, SelectedTabChangingEventArgs e);
@@ -394,7 +392,7 @@ namespace BetterTabs
         internal void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             Tab thisTab = (Tab)sender;
-            CancelableTabEventArgs eventArgs = new CancelableTabEventArgs();
+            CancelEventArgs eventArgs = new CancelEventArgs();
             thisTab.OnTabClosing(eventArgs);
             if (!eventArgs.Cancel)
             {
@@ -594,7 +592,6 @@ namespace BetterTabs
                 e.Handled = true;
             }
         }
-
         protected override void OnPreviewDragLeave(DragEventArgs e)
         {
             base.OnPreviewDragLeave(e);
@@ -659,10 +656,24 @@ namespace BetterTabs
         }
         private void BetterTabControl_Loaded(object sender, RoutedEventArgs e)
         {
+            Window.GetWindow(this).Closing += BetterTabControl_Closing;
             if (Tabs.Count <= 0)
                 AddNewTab();
             if (SelectedTab == null)
                 ChangeSelectedTab(0);
+        }
+
+        private void BetterTabControl_Closing(object sender, CancelEventArgs e)
+        {
+            bool cancel = false;
+            foreach(Tab thisTab in Tabs)
+            {
+                CancelEventArgs eventArgs = new CancelEventArgs();
+                thisTab.OnTabClosing(eventArgs);
+                if (eventArgs.Cancel)
+                    cancel = true;
+            }
+            e.Cancel = cancel;
         }
 
         private void ClearSelected()
@@ -734,17 +745,6 @@ namespace BetterTabs
         private void TabsItemChanged(object sender, PropertyChangedEventArgs e)
         {
             ReindexTabs();
-        }
-    }
-    public class CancelableTabEventArgs : EventArgs
-    {
-        private bool cancel;
-
-        public bool Cancel { get => cancel; set => cancel = value; }
-
-        public CancelableTabEventArgs()
-        {
-            cancel = false;
         }
     }
     public class ChangeColorBrightness : IValueConverter
@@ -881,13 +881,18 @@ namespace BetterTabs
         }
     }
 
-    public class SelectedTabChangingEventArgs : CancelableTabEventArgs
+    public class SelectedTabChangingEventArgs : CancelEventArgs
     {
         public Tab NewSelection { get; set; }
 
         public Tab OldSelection { get; set; }
 
-        public SelectedTabChangingEventArgs(Tab oldSelection, Tab newSelection) : base()
+        public SelectedTabChangingEventArgs(Tab oldSelection, Tab newSelection) : this(oldSelection, newSelection, false)
+        {
+
+        }
+
+        public SelectedTabChangingEventArgs(Tab oldSelection, Tab newSelection, bool cancel) : base(cancel)
         {
             OldSelection = oldSelection;
             NewSelection = newSelection;
