@@ -656,7 +656,9 @@ namespace BetterTabs
         }
         private void BetterTabControl_Loaded(object sender, RoutedEventArgs e)
         {
-            Window.GetWindow(this).Closing += BetterTabControl_Closing;
+            Window tempWindow = Window.GetWindow(this);
+            if(tempWindow != null)
+                tempWindow.Closing += BetterTabControl_Closing;
             if (Tabs.Count <= 0)
                 AddNewTab();
             if (SelectedTab == null)
