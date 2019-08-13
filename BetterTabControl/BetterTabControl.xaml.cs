@@ -395,7 +395,7 @@ namespace BetterTabs
         {
             Tab thisTab = (Tab)sender;
             CancelableTabEventArgs eventArgs = new CancelableTabEventArgs();
-            thisTab.OnCloseButtonClick(eventArgs);
+            thisTab.OnTabClosing(eventArgs);
             if (!eventArgs.Cancel)
             {
                 thisTab.Close();

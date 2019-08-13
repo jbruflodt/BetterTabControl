@@ -125,7 +125,7 @@ namespace BetterTabs
 
         internal int PreviousIndex { get => previousIndex; set => previousIndex = value; }
 
-        public event CancelableTabEventHandler CloseButtonClicked;
+        public event CancelableTabEventHandler TabClosing;
         public event EventHandler DisplayIndexchanged;
         public event EventHandler TabContentChanged;
         public event EventHandler TabContentTemplateChanged;
@@ -262,9 +262,9 @@ namespace BetterTabs
         {
             NotifyPropertyChanged(nameof(IsPressed));
         }
-        protected internal void OnCloseButtonClick(CancelableTabEventArgs e)
+        protected internal void OnTabClosing(CancelableTabEventArgs e)
         {
-            CloseButtonClicked?.Invoke(this, e);
+            TabClosing?.Invoke(this, e);
         }
         
         public int Compare(Tab x, Tab y)
