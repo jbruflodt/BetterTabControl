@@ -90,7 +90,7 @@ namespace BetterTabs
         public DataTemplate TabContentTemplate
         {
             get { return (DataTemplate)GetValue(TabContentTemplateProperty); }
-            set { SetValue(TabContentProperty, value); }
+            set { SetValue(TabContentTemplateProperty, value); }
         }
         public Guid ID
         {
@@ -124,7 +124,7 @@ namespace BetterTabs
 
         internal int PreviousIndex { get => previousIndex; set => previousIndex = value; }
 
-        public event CancelableTabEventHandler CloseButtonClicked;
+        public event CancelEventHandler TabClosing;
         public event EventHandler DisplayIndexchanged;
         public event EventHandler TabContentChanged;
         public event EventHandler TabContentTemplateChanged;
@@ -261,9 +261,9 @@ namespace BetterTabs
         {
             NotifyPropertyChanged(nameof(IsPressed));
         }
-        protected internal void OnCloseButtonClick(CancelableTabEventArgs e)
+        protected internal void OnTabClosing(CancelEventArgs e)
         {
-            CloseButtonClicked?.Invoke(this, e);
+            TabClosing?.Invoke(this, e);
         }
 
         public int Compare(Tab x, Tab y)
