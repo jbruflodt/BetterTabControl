@@ -254,7 +254,7 @@ namespace BetterTabs
 
         public object SelectedContent
         {
-            get { return (Tab)GetValue(SelectedContentProperty); }
+            get { return (object)GetValue(SelectedContentProperty); }
         }
 
         public DataTemplate SelectedContentTemplate
