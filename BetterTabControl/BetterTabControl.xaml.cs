@@ -339,9 +339,34 @@ namespace BetterTabs
         {
             Tabs = new TabCollection(this);
             Tabs.CollectionChanged += TabsCollectionChanged;
+            CommandBindings.Add(new CommandBinding(ComponentCommands.ScrollPageRight, new ExecutedRoutedEventHandler(PageRightExecuted), new CanExecuteRoutedEventHandler(PageRightCanExecute)));
+            CommandBindings.Add(new CommandBinding(ComponentCommands.ScrollPageLeft, new ExecutedRoutedEventHandler(PageLeftExecuted), new CanExecuteRoutedEventHandler(PageLeftCanExecute)));
             Loaded += BetterTabControl_Loaded;
         }
+        private void PageRightCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            StackPanel tabStackPanel = GetTabPresenterStackPanel();
+            if (tabStackPanel != null)
+                e.CanExecute = tabStackPanel.ExtentWidth > tabStackPanel.ActualWidth;
+            else
+                e.CanExecute = false;
+        }
+        private void PageRightExecuted(object sender, ExecutedRoutedEventArgs e)
+        {
 
+        }
+        private void PageLeftCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            StackPanel tabStackPanel = GetTabPresenterStackPanel();
+            if (tabStackPanel != null)
+                e.CanExecute = tabStackPanel.ExtentWidth > tabStackPanel.ActualWidth && tabStackPanel.HorizontalOffset != 0;
+            else
+                e.CanExecute = false;
+        }
+        private void PageLeftExecuted(object sender, ExecutedRoutedEventArgs e)
+        {
+
+        }
         public void AddNewTab()
         {
             Tab addedTab = new Tab();
@@ -748,6 +773,49 @@ namespace BetterTabs
         private void TabsItemChanged(object sender, PropertyChangedEventArgs e)
         {
             ReindexTabs();
+        }
+
+        private StackPanel GetTabPresenterStackPanel()
+        {
+            DependencyObject child = null;
+            for (Int32 i = 0; i < VisualTreeHelper.GetChildrenCount(this); i++)
+            {
+                child = VisualTreeHelper.GetChild(this, i);
+                if (child != null && child.GetType() == typeof(StackPanel) && (child as StackPanel).Name == "TabStackPanel")
+                {
+                    break;
+                }
+                else if (child != null)
+                {
+                    child = GetChild<StackPanel>(child);
+                    if (child != null && child.GetType() == typeof(StackPanel) && (child as StackPanel).Name == "TabStackPanel")
+                    {
+                        break;
+                    }
+                }
+            }
+            return child as StackPanel;
+        }
+        private T GetChild<T>(DependencyObject obj) where T : DependencyObject
+        {
+            DependencyObject child = null;
+            for (Int32 i = 0; i < VisualTreeHelper.GetChildrenCount(obj); i++)
+            {
+                child = VisualTreeHelper.GetChild(obj, i);
+                if (child != null && child.GetType() == typeof(T))
+                {
+                    break;
+                }
+                else if (child != null)
+                {
+                    child = GetChild<T>(child);
+                    if (child != null && child.GetType() == typeof(T))
+                    {
+                        break;
+                    }
+                }
+            }
+            return child as T;
         }
     }
     public class ChangeColorBrightness : IValueConverter
