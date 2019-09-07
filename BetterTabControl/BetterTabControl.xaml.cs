@@ -72,7 +72,7 @@ namespace BetterTabs
 
     [TemplatePart(Name = "TabBar", Type = typeof(Panel))]
     [TemplatePart(Name = "TabBarFiller", Type = typeof(UIElement))]
-    [TemplatePart(Name = "TabsPresenter", Type = typeof(ItemsControl))]
+    [TemplatePart(Name = "TabsPresenter", Type = typeof(BetterTabsPresenter))]
     [TemplatePart(Name = "NewTabButton", Type = typeof(ButtonBase))]
     [TemplatePart(Name = "CurrentContent", Type = typeof(ContentPresenter))]
     public partial class BetterTabControl : Control, INotifyPropertyChanged
@@ -208,13 +208,11 @@ namespace BetterTabs
 
         protected UIElement TabBarFiller;
 
-        protected ItemsControl TabsPresenter;
+        protected BetterTabsPresenter tabsPresenter;
 
         private ButtonBase ScrollRight;
 
         private ButtonBase ScrollLeft;
-
-        private ScrollViewer TabScroller;
 
         public Brush BarBackgroundColor
         {
@@ -325,6 +323,13 @@ namespace BetterTabs
             get { return (Brush)GetValue(TabTextColorProperty); }
             set { SetValue(TabTextColorProperty, value); }
         }
+        public BetterTabsPresenter TabsPresenter
+        {
+            get
+            {
+                return tabsPresenter;
+            }
+        }
 
         public event AddTabEventHandler AddedNewTab;
 
@@ -345,33 +350,7 @@ namespace BetterTabs
         {
             Tabs = new TabCollection(this);
             Tabs.CollectionChanged += TabsCollectionChanged;
-            CommandBindings.Add(new CommandBinding(ComponentCommands.ScrollPageRight, new ExecutedRoutedEventHandler(PageRightExecuted), new CanExecuteRoutedEventHandler(PageRightCanExecute)));
-            CommandBindings.Add(new CommandBinding(ComponentCommands.ScrollPageLeft, new ExecutedRoutedEventHandler(PageLeftExecuted), new CanExecuteRoutedEventHandler(PageLeftCanExecute)));
             Loaded += BetterTabControl_Loaded;
-        }
-        private void PageRightCanExecute(object sender, CanExecuteRoutedEventArgs e)
-        {
-            StackPanel tabStackPanel = GetTabPresenterStackPanel();
-            if (tabStackPanel != null)
-                e.CanExecute = tabStackPanel.ExtentWidth > tabStackPanel.ActualWidth;
-            else
-                e.CanExecute = false;
-        }
-        private void PageRightExecuted(object sender, ExecutedRoutedEventArgs e)
-        {
-
-        }
-        private void PageLeftCanExecute(object sender, CanExecuteRoutedEventArgs e)
-        {
-            StackPanel tabStackPanel = GetTabPresenterStackPanel();
-            if (tabStackPanel != null)
-                e.CanExecute = tabStackPanel.ExtentWidth > tabStackPanel.ActualWidth && tabStackPanel.HorizontalOffset != 0;
-            else
-                e.CanExecute = false;
-        }
-        private void PageLeftExecuted(object sender, ExecutedRoutedEventArgs e)
-        {
-
         }
         public void AddNewTab()
         {
@@ -387,12 +366,12 @@ namespace BetterTabs
         {
             TabBar = GetTemplateChild("TabBar") as Panel;
             TabBarFiller = GetTemplateChild("TabBarFiller") as UIElement;
-            TabsPresenter = GetTemplateChild("TabsPresenter") as ItemsControl;
+            tabsPresenter = GetTemplateChild("TabsPresenter") as BetterTabsPresenter;
+            OnPropertyChanged("TabsPresenter");
             NewTabButton = GetTemplateChild("NewTabButton") as ButtonBase;
             CurrentContent = GetTemplateChild("CurrentContent") as ContentPresenter;
             ScrollLeft = GetTemplateChild("ScrollLeft") as ButtonBase;
             ScrollRight = GetTemplateChild("ScrollRight") as ButtonBase;
-            TabScroller = GetTemplateChild("TabScroller") as ScrollViewer;
             if (TabsPresenter != null)
             {
                 TabsPresenter.PreviewMouseMove += TabsPanel_PreviewMouseMove;
@@ -514,6 +493,8 @@ namespace BetterTabs
         {
             DependencyObject visualHit = VisualTreeHelper.HitTest(this as Visual, e.GetPosition(this as IInputElement)).VisualHit;
             DependencyObject visualAncestor = visualHit?.FindVisualAncestor(typeof(Button));
+            if(visualAncestor == null)
+                visualAncestor = visualHit?.FindVisualAncestor(typeof(Tab));
             if (visualAncestor == null)
             {
                 if (e.Data.GetDataPresent(typeof(Tab)))
@@ -601,6 +582,7 @@ namespace BetterTabs
                     SetValue(SelectedContentTemplateProperty, tab.TabContentTemplate);
                     OnSelectedTabChanged(oldSelection, tab);
                     NotifySelectedChanged();
+                    tab.BringIntoView();
                 }
             }
             else
@@ -736,6 +718,7 @@ namespace BetterTabs
         private void NewTab_Click(object sender, RoutedEventArgs e)
         {
             AddNewTab();
+            ScrollBar.LineRightCommand.CanExecute(null, TabsPresenter);
         }
 
         private void NotifySelectedChanged()
@@ -782,28 +765,6 @@ namespace BetterTabs
         private void TabsItemChanged(object sender, PropertyChangedEventArgs e)
         {
             ReindexTabs();
-        }
-
-        private StackPanel GetTabPresenterStackPanel()
-        {
-            DependencyObject child = null;
-            for (Int32 i = 0; i < VisualTreeHelper.GetChildrenCount(this); i++)
-            {
-                child = VisualTreeHelper.GetChild(this, i);
-                if (child != null && child.GetType() == typeof(StackPanel) && (child as StackPanel).Name == "TabStackPanel")
-                {
-                    break;
-                }
-                else if (child != null)
-                {
-                    child = GetChild<StackPanel>(child);
-                    if (child != null && child.GetType() == typeof(StackPanel) && (child as StackPanel).Name == "TabStackPanel")
-                    {
-                        break;
-                    }
-                }
-            }
-            return child as StackPanel;
         }
         private T GetChild<T>(DependencyObject obj) where T : DependencyObject
         {
@@ -1102,14 +1063,14 @@ namespace BetterTabs
             throw new NotImplementedException();
         }
     }
-    internal class ScrollButtonsVisibilityConverter : IMultiValueConverter
+    internal class ScrollButtonsVisibilityConverter : IValueConverter
     {
-        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return !(bool)values[0] && !(bool)values[1] ? Visibility.Collapsed : Visibility.Visible;
+            return (double)value > 0 ? Visibility.Visible : Visibility.Collapsed;
         }
 
-        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }

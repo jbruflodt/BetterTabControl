@@ -11,6 +11,11 @@ namespace BetterTabControlTest
         public MainWindow()
         {
             InitializeComponent();
+            for (int x = 0; x < 11; x++)
+            {
+                Tabs.AddNewTab();
+                Tabs.SelectedTab.TabTitle = "tab" + x.ToString();
+            }
             //Tabs.AddNewTab();
             //Tabs.AddNewTab();
             //Tabs.Tabs[0].TabContent = new Button()

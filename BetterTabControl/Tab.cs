@@ -265,7 +265,6 @@ namespace BetterTabs
         {
             TabClosing?.Invoke(this, e);
         }
-
         public int Compare(Tab x, Tab y)
         {
             if (x == null)
