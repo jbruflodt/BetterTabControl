@@ -768,11 +768,11 @@ namespace BetterTabs
                         {
                             thisTab.SetSelected(false);
                             if (thisTab.DisplayIndex > 0 && Tabs.Count > thisTab.DisplayIndex - 1)
-                                Tabs[thisTab.DisplayIndex - 1].SetSelected(true);
+                                this.ChangeSelectedTab(Tabs[thisTab.DisplayIndex - 1]);
                             else if (thisTab.DisplayIndex == 0 && Tabs.Count > 0)
-                                Tabs[0].SetSelected(true);
+                                this.ChangeSelectedTab(Tabs[0]);
                             else if (Tabs.Count > 0)
-                                Tabs[Tabs.Count - 1].SetSelected(true);
+                                this.ChangeSelectedTab(Tabs[Tabs.Count - 1]);
                         }
                     }
                 }
