@@ -210,10 +210,6 @@ namespace BetterTabs
 
         protected BetterTabsPresenter tabsPresenter;
 
-        private ButtonBase ScrollRight;
-
-        private ButtonBase ScrollLeft;
-
         public Brush BarBackgroundColor
         {
             get { return (Brush)GetValue(BarBackgroundColorProperty); }
@@ -367,11 +363,9 @@ namespace BetterTabs
             TabBar = GetTemplateChild("TabBar") as Panel;
             TabBarFiller = GetTemplateChild("TabBarFiller") as UIElement;
             tabsPresenter = GetTemplateChild("TabsPresenter") as BetterTabsPresenter;
-            OnPropertyChanged("TabsPresenter");
+            OnPropertyChanged(nameof(TabsPresenter));
             NewTabButton = GetTemplateChild("NewTabButton") as ButtonBase;
             CurrentContent = GetTemplateChild("CurrentContent") as ContentPresenter;
-            ScrollLeft = GetTemplateChild("ScrollLeft") as ButtonBase;
-            ScrollRight = GetTemplateChild("ScrollRight") as ButtonBase;
             if (TabsPresenter != null)
             {
                 TabsPresenter.PreviewMouseMove += TabsPanel_PreviewMouseMove;
@@ -723,7 +717,7 @@ namespace BetterTabs
 
         private void NotifySelectedChanged()
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectedIndex"));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedIndex)));
         }
         private void ReindexTabs()
         {
