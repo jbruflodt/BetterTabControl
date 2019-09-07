@@ -210,6 +210,12 @@ namespace BetterTabs
 
         protected ItemsControl TabsPresenter;
 
+        private ButtonBase ScrollRight;
+
+        private ButtonBase ScrollLeft;
+
+        private ScrollViewer TabScroller;
+
         public Brush BarBackgroundColor
         {
             get { return (Brush)GetValue(BarBackgroundColorProperty); }
@@ -384,6 +390,9 @@ namespace BetterTabs
             TabsPresenter = GetTemplateChild("TabsPresenter") as ItemsControl;
             NewTabButton = GetTemplateChild("NewTabButton") as ButtonBase;
             CurrentContent = GetTemplateChild("CurrentContent") as ContentPresenter;
+            ScrollLeft = GetTemplateChild("ScrollLeft") as ButtonBase;
+            ScrollRight = GetTemplateChild("ScrollRight") as ButtonBase;
+            TabScroller = GetTemplateChild("TabScroller") as ScrollViewer;
             if (TabsPresenter != null)
             {
                 TabsPresenter.PreviewMouseMove += TabsPanel_PreviewMouseMove;
@@ -1086,6 +1095,18 @@ namespace BetterTabs
                 return (double)values[0] - (double)values[1];
             else
                 return (double)values[0] - ((double)values[1] + (double)values[2]);
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    internal class ScrollButtonsVisibilityConverter : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            return !(bool)values[0] && !(bool)values[1] ? Visibility.Collapsed : Visibility.Visible;
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
