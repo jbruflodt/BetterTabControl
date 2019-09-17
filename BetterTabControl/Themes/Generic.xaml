@@ -9,6 +9,7 @@
     xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero">
     <local:ChangeColorBrightness x:Key="ChangeColorBrightness"/>
     <local:TabPresenterWidthCalculator x:Key="TabPresenterWidthCalculator"/>
+    <local:ScrollButtonsVisibilityConverter x:Key="ScrollButtonsVisibilityConverter"/>
     <FontWeight x:Key="BoldFont">Bold</FontWeight>
     <ItemsPanelTemplate x:Key="TabPanelTemplate">
         <StackPanel IsItemsHost="True" Orientation="Horizontal"/>
@@ -125,7 +126,7 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition/>
                         </Grid.RowDefinitions>
-                        <Grid x:Name="TabBar" Margin="0" AllowDrop="True" ClipToBounds="True">
+                        <Grid x:Name="TabBar" Margin="0" AllowDrop="True" ClipToBounds="True" Background="{Binding BarBackgroundColor, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto">
                                     <ColumnDefinition.MaxWidth>
@@ -148,24 +149,24 @@
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <Button x:Name="ScrollRight" Content="&gt;" Height="Auto" VerticalAlignment="Stretch" Margin="0" Grid.Column="1" FontWeight="Bold" Command="ComponentCommands.ScrollPageRight" CommandTarget="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}"/>
-                                <Button x:Name="ScrollLeft" Content="&lt;" Height="Auto" VerticalAlignment="Stretch" Width="Auto" Margin="0" FontWeight="Bold" Command="ComponentCommands.ScrollPageLeft" CommandTarget="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}"/>
+                                <Button x:Name="ScrollRight" Content="&gt;" Height="Auto" VerticalAlignment="Stretch" Margin="0" Grid.Column="1" FontWeight="Bold" Command="ScrollBar.LineRightCommand" CommandTarget="{Binding TabsPresenter, RelativeSource={RelativeSource TemplatedParent}}" Visibility="{Binding TabsPresenter.TabScroller.ScrollableWidth, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource ScrollButtonsVisibilityConverter}}"/>
+                                <Button x:Name="ScrollLeft" Content="&lt;" Height="Auto" VerticalAlignment="Stretch" Width="Auto" Margin="0" FontWeight="Bold" Command="ScrollBar.LineLeftCommand" CommandTarget="{Binding TabsPresenter, RelativeSource={RelativeSource TemplatedParent}}" Visibility="{Binding TabsPresenter.TabScroller.ScrollableWidth, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource ScrollButtonsVisibilityConverter}}"/>
                             </Grid>
                             <Rectangle x:Name="Ribbon" Fill="{TemplateBinding RibbonColor}" Height="3" Margin="0" Grid.Row="1" Grid.ColumnSpan="3"/>
-                            <ItemsControl x:Name="TabsPresenter" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="Auto" VerticalContentAlignment="Stretch" Margin="0" ClipToBounds="True" Grid.ColumnSpan="1" ItemsSource="{Binding Tabs, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}" ScrollViewer.CanContentScroll="True" Focusable="False">
-                                <ItemsControl.Template>
-                                    <ControlTemplate TargetType="{x:Type ItemsControl}">
-                                        <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True" ScrollViewer.VerticalScrollBarVisibility="Disabled">
-                                            <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" ScrollViewer.HorizontalScrollBarVisibility="Auto"/>
-                                        </Border>
-                                    </ControlTemplate>
-                                </ItemsControl.Template>
+                            <local:BetterTabsPresenter x:Name="TabsPresenter" VerticalContentAlignment="Stretch" ScrollViewer.CanContentScroll="True" ItemsSource="{TemplateBinding Tabs}" ClipToBounds="False">
+                                <local:BetterTabsPresenter.MaxWidth>
+                                    <MultiBinding Converter="{StaticResource TabPresenterWidthCalculator}">
+                                        <Binding ElementName="TabBar" Path="ActualWidth"/>
+                                        <Binding ElementName="NewTabButton" Path="ActualWidth"/>
+                                        <Binding ElementName="ScrollButtons" Path="ActualWidth"/>
+                                    </MultiBinding>
+                                </local:BetterTabsPresenter.MaxWidth>
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
-                                        <StackPanel x:Name="StackPanel" IsItemsHost="True" Orientation="Horizontal" CanHorizontallyScroll="True"/>
+                                        <StackPanel x:Name="StackPanel" IsItemsHost="True" Orientation="Horizontal" CanHorizontallyScroll="True" ScrollViewer.CanContentScroll="True" ClipToBounds="False"/>
                                     </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
-                            </ItemsControl>
+                            </local:BetterTabsPresenter>
                             <Button x:Name="NewTabButton" Content="{TemplateBinding NewTabDisplayText}" Height="27" MinWidth="20" FontWeight="Bold" MinHeight="17" MaxHeight="47" MaxWidth="50" FocusVisualStyle="{x:Null}" Width="Auto" Margin="0" HorizontalAlignment="Left" Grid.Column="1">
                                 <Button.Style>
                                     <Style TargetType="{x:Type Button}">
@@ -196,11 +197,23 @@
                             </Button>
                         </Grid>
                         <ContentControl x:Name="CurrentContent" Content="{TemplateBinding SelectedContent}" Grid.Row="1" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" ContentTemplate="{TemplateBinding SelectedContentTemplate}" DataContext="{TemplateBinding SelectedTab}"/>
-
-
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+    </Style>
+    <Style TargetType="local:BetterTabsPresenter">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:BetterTabsPresenter">
+                    <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True" ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                        <ScrollViewer x:Name="TabScroller" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="Auto" Margin="0" Grid.ColumnSpan="1" VerticalScrollBarVisibility="Disabled" CanContentScroll="True" >
+                            <ItemsPresenter x:Name="ItemsPresenter" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                        </ScrollViewer>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ClipToBounds" Value="True"/>
     </Style>
 </ResourceDictionary>
