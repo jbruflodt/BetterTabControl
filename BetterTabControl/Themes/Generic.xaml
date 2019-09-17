@@ -152,7 +152,7 @@
                                 <Button x:Name="ScrollLeft" Content="&lt;" Height="Auto" VerticalAlignment="Stretch" Width="Auto" Margin="0" FontWeight="Bold" Command="ComponentCommands.ScrollPageLeft" CommandTarget="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}"/>
                             </Grid>
                             <Rectangle x:Name="Ribbon" Fill="{TemplateBinding RibbonColor}" Height="3" Margin="0" Grid.Row="1" Grid.ColumnSpan="3"/>
-                            <ItemsControl x:Name="TabsPresenter" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="Auto" VerticalContentAlignment="Stretch" Margin="0" ClipToBounds="True" Grid.ColumnSpan="1" ItemsSource="{Binding Tabs, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}" ScrollViewer.CanContentScroll="True">
+                            <ItemsControl x:Name="TabsPresenter" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="Auto" VerticalContentAlignment="Stretch" Margin="0" ClipToBounds="True" Grid.ColumnSpan="1" ItemsSource="{Binding Tabs, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:BetterTabControl}}}" ScrollViewer.CanContentScroll="True" Focusable="False">
                                 <ItemsControl.Template>
                                     <ControlTemplate TargetType="{x:Type ItemsControl}">
                                         <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True" ScrollViewer.VerticalScrollBarVisibility="Disabled">
