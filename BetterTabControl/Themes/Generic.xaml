@@ -153,7 +153,7 @@
                                 <Button x:Name="ScrollLeft" Content="&lt;" Height="Auto" VerticalAlignment="Stretch" Width="Auto" Margin="0" FontWeight="Bold" Command="ScrollBar.LineLeftCommand" CommandTarget="{Binding TabsPresenter, RelativeSource={RelativeSource TemplatedParent}}" Visibility="{Binding TabsPresenter.TabScroller.ScrollableWidth, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource ScrollButtonsVisibilityConverter}}"/>
                             </Grid>
                             <Rectangle x:Name="Ribbon" Fill="{TemplateBinding RibbonColor}" Height="3" Margin="0" Grid.Row="1" Grid.ColumnSpan="3"/>
-                            <local:BetterTabsPresenter x:Name="TabsPresenter" VerticalContentAlignment="Stretch" ScrollViewer.CanContentScroll="True" ItemsSource="{TemplateBinding Tabs}" ClipToBounds="False">
+                            <local:BetterTabsPresenter x:Name="TabsPresenter" VerticalContentAlignment="Stretch" ScrollViewer.CanContentScroll="True" ItemsSource="{TemplateBinding Tabs}" ClipToBounds="False" Focusable="False">
                                 <local:BetterTabsPresenter.MaxWidth>
                                     <MultiBinding Converter="{StaticResource TabPresenterWidthCalculator}">
                                         <Binding ElementName="TabBar" Path="ActualWidth"/>
@@ -207,7 +207,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="local:BetterTabsPresenter">
                     <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True" ScrollViewer.VerticalScrollBarVisibility="Disabled">
-                        <ScrollViewer x:Name="TabScroller" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="Auto" Margin="0" Grid.ColumnSpan="1" VerticalScrollBarVisibility="Disabled" CanContentScroll="True" >
+                        <ScrollViewer x:Name="TabScroller" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="Auto" Margin="0" Grid.ColumnSpan="1" VerticalScrollBarVisibility="Disabled" CanContentScroll="True" Focusable="False" >
                             <ItemsPresenter x:Name="ItemsPresenter" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                         </ScrollViewer>
                     </Border>
