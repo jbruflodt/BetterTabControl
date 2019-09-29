@@ -5,11 +5,12 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace BetterTabs
 {
     [TemplatePart(Name = "CloseButton", Type = typeof(ButtonBase))]
-    [TemplatePart(Name = "TitleContent", Type = typeof(ContentPresenter))]
+    [TemplatePart(Name = "TitleContent", Type = typeof(ContentControl))]
     [TemplatePart(Name = "TabBackground", Type = typeof(Panel))]
     public class Tab : HeaderedContentControl, INotifyPropertyChanged, IComparer<Tab>
     {
@@ -22,13 +23,13 @@ namespace BetterTabs
             "TabTitle",
             typeof(object),
             typeof(Tab),
-            new FrameworkPropertyMetadata("Untitled", FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnTabTitlePropertyChanged))
+            new FrameworkPropertyMetadata("Untitled", FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender, new PropertyChangedCallback(OnTabTitlePropertyChanged))
             );
         public static readonly DependencyProperty TabContentProperty = DependencyProperty.Register(
             "TabContent",
             typeof(object),
             typeof(Tab),
-            new FrameworkPropertyMetadata(new PropertyChangedCallback(OnTabContentPropertyChanged))
+            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender, new PropertyChangedCallback(OnTabContentPropertyChanged))
             );
         public static readonly DependencyProperty IDProperty = DependencyProperty.Register(
             "ID",
@@ -70,13 +71,46 @@ namespace BetterTabs
             "TabContentTemplate",
             typeof(DataTemplate),
             typeof(Tab),
-            new FrameworkPropertyMetadata(new PropertyChangedCallback(OnTabContentTemplatePropertyChanged))
+            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender, new PropertyChangedCallback(OnTabContentTemplatePropertyChanged))
             );
+        public static readonly DependencyProperty MouseOverBackgroundProperty = DependencyProperty.Register(
+            "MouseOverBackground",
+            typeof(Brush),
+            typeof(Tab),
+            new FrameworkPropertyMetadata(SystemColors.HighlightBrush, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender, new PropertyChangedCallback(OnMouseOverBackgroundPropertyChanged))
+            );
+
+        public static readonly DependencyProperty MouseOverForegroundProperty = DependencyProperty.Register(
+            "MouseOverForeground",
+            typeof(Brush),
+            typeof(Tab),
+            new FrameworkPropertyMetadata(SystemColors.HighlightTextBrush, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender, new PropertyChangedCallback(OnMouseOverForegroundPropertyChanged))
+            );
+        public static readonly DependencyProperty SelectedBackgroundProperty = DependencyProperty.Register(
+            "SelectedBackground",
+            typeof(Brush),
+            typeof(Tab),
+            new FrameworkPropertyMetadata(SystemColors.HighlightBrush, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender, new PropertyChangedCallback(OnSelectedBackgroundPropertyChanged))
+            );
+
+        public static readonly DependencyProperty SelectedForegroundProperty = DependencyProperty.Register(
+            "SelectedForeground",
+            typeof(Brush),
+            typeof(Tab),
+            new FrameworkPropertyMetadata(Brushes.White, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender, new PropertyChangedCallback(OnSelectedForegroundPropertyChanged))
+            );
+
         private ButtonBase CloseButton;
-        protected ContentPresenter TitleContent;
+        protected ContentControl TitleContent;
         private Panel TabBackground;
         private int previousIndex;
-
+        private bool settingFromParent;
+        private bool backgroundSetManually;
+        private bool foregroundSetManually;
+        private bool mouseOverBackgroundSetManually;
+        private bool mouseOverForegroundSetManually;
+        private bool selectedBackgroundSetManually;
+        private bool selectedForegroundSetManually;
         public object TabTitle
         {
             get { return GetValue(TabTitleProperty); }
@@ -121,7 +155,26 @@ namespace BetterTabs
         {
             get { return (bool)GetValue(IsDraggingProperty); }
         }
-
+        public Brush MouseOverBackground
+        {
+            get { return (Brush)GetValue(MouseOverBackgroundProperty); }
+            set { SetValue(MouseOverBackgroundProperty, value); }
+        }
+        public Brush MouseOverForeground
+        {
+            get { return (Brush)GetValue(MouseOverForegroundProperty); }
+            set { SetValue(MouseOverForegroundProperty, value); }
+        }
+        public Brush SelectedBackground
+        {
+            get { return (Brush)GetValue(SelectedBackgroundProperty); }
+            set { SetValue(SelectedBackgroundProperty, value); }
+        }
+        public Brush SelectedForeground
+        {
+            get { return (Brush)GetValue(SelectedForegroundProperty); }
+            set { SetValue(SelectedForegroundProperty, value); }
+        }
         internal int PreviousIndex { get => previousIndex; set => previousIndex = value; }
 
         public event CancelEventHandler TabClosing;
@@ -145,7 +198,73 @@ namespace BetterTabs
         public Tab() : this("Untitled", null)
         {
         }
-
+        private static void OnMouseOverBackgroundPropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            Tab tab = sender as Tab;
+            if(!tab.settingFromParent)
+            {
+                tab.mouseOverBackgroundSetManually = true;
+            }
+            tab.OnPropertyChanged(e);
+        }
+        private static void OnMouseOverForegroundPropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            Tab tab = sender as Tab;
+            if (!tab.settingFromParent)
+            {
+                tab.mouseOverForegroundSetManually = true;
+            }
+            tab.OnPropertyChanged(e);
+        }
+        private static void OnSelectedBackgroundPropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            Tab tab = sender as Tab;
+            if (!tab.settingFromParent)
+            {
+                tab.selectedBackgroundSetManually = true;
+            }
+            tab.OnPropertyChanged(e);
+        }
+        private static void OnSelectedForegroundPropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            Tab tab = sender as Tab;
+            if (!tab.settingFromParent)
+            {
+                tab.selectedForegroundSetManually = true;
+            }
+            tab.OnPropertyChanged(e);
+        }
+        protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
+        {
+            base.OnPropertyChanged(e);
+            if (!settingFromParent)
+            {
+                if (e.Property == Tab.BackgroundProperty)
+                {
+                    backgroundSetManually = true;
+                }
+                else if (e.Property == Tab.ForegroundProperty)
+                {
+                    foregroundSetManually = true;
+                }
+                else if (e.Property == Tab.MouseOverBackgroundProperty)
+                {
+                    mouseOverBackgroundSetManually = true;
+                }
+                else if (e.Property == Tab.MouseOverForegroundProperty)
+                {
+                    mouseOverForegroundSetManually = true;
+                }
+                else if (e.Property == Tab.SelectedBackgroundProperty)
+                {
+                    selectedBackgroundSetManually = true;
+                }
+                else if (e.Property == Tab.SelectedForegroundProperty)
+                {
+                    selectedForegroundSetManually = true;
+                }
+            }
+        }
 
         private void NotifyPropertyChanged(string propertyName)
         {
@@ -162,6 +281,19 @@ namespace BetterTabs
         protected internal void SetParentTabControl(BetterTabControl parentTabControl)
         {
             SetValue(ParentTabControlProperty, parentTabControl);
+            settingFromParent = true;
+            if(!selectedBackgroundSetManually && parentTabControl != null)
+                SelectedBackground = parentTabControl.SelectedTabBackgroundColor;
+            if(!selectedForegroundSetManually && parentTabControl != null)
+                SelectedForeground = parentTabControl.SelectedTabTextColor;
+            if(!mouseOverBackgroundSetManually && parentTabControl != null)
+                MouseOverBackground = parentTabControl.MouseOverTabBackgroundColor;
+            if(mouseOverForegroundSetManually && parentTabControl != null)
+                MouseOverForeground = parentTabControl.MouseOverTabTextColor;
+            if(!backgroundSetManually && parentTabControl != null)
+                Background = parentTabControl.TabBackgroundColor;
+            if(!foregroundSetManually && parentTabControl != null)
+                Foreground = parentTabControl.TabTextColor;
         }
         private void SetID(Guid newID)
         {
@@ -316,7 +448,7 @@ namespace BetterTabs
         public override void OnApplyTemplate()
         {
             CloseButton = GetTemplateChild("CloseButton") as ButtonBase;
-            TitleContent = GetTemplateChild("TitleContent") as ContentPresenter;
+            TitleContent = GetTemplateChild("TitleContent") as ContentControl;
             TabBackground = GetTemplateChild("TabBackground") as Panel;
             if (CloseButton != null)
             {

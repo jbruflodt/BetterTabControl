@@ -210,6 +210,8 @@ namespace BetterTabs
 
         protected BetterTabsPresenter tabsPresenter;
 
+        protected Guid id;
+
         public Brush BarBackgroundColor
         {
             get { return (Brush)GetValue(BarBackgroundColorProperty); }
@@ -344,6 +346,7 @@ namespace BetterTabs
         }
         public BetterTabControl()
         {
+            id = Guid.NewGuid();
             Tabs = new TabCollection(this);
             Tabs.CollectionChanged += TabsCollectionChanged;
             Loaded += BetterTabControl_Loaded;
@@ -478,6 +481,7 @@ namespace BetterTabs
                 if (thisTab.ID != localDraggedTab.ID)
                 {
                     Tabs.Move(Tabs.IndexOf(localDraggedTab), Tabs.IndexOf(thisTab));
+                    SelectedTab = localDraggedTab;
                     UpdateLayout();
                 }
                 e.Handled = true;
@@ -497,6 +501,7 @@ namespace BetterTabs
                     if (Tabs.IndexOf(localDraggedTab) != Tabs.Count - 1)
                     {
                         Tabs.Move(Tabs.IndexOf(localDraggedTab), Tabs.Count - 1);
+                        SelectedTab = localDraggedTab;
                         UpdateLayout();
                     }
                     e.Handled = true;
@@ -508,7 +513,7 @@ namespace BetterTabs
         {
             DependencyObject visualHit = VisualTreeHelper.HitTest(sender as Visual, e.GetPosition(sender as IInputElement)).VisualHit;
             DependencyObject visualAncestor = visualHit?.FindVisualAncestor(typeof(Button));
-            if (visualAncestor == null || (visualAncestor as Button).Name != "closeButton")
+            if (visualAncestor == null || (visualAncestor as Button).Name != "CloseButton")
             {
                 Tab thisTab = (Tab)sender;
                 if (!thisTab.IsSelected)
@@ -546,7 +551,8 @@ namespace BetterTabs
                     doingDragDrop = false;
                     if (dragResult == DragDropEffects.None)
                     {
-                        Tabs.Add(draggedTab);
+                        if(!Tabs.Contains(draggedTab))
+                            Tabs.Add(draggedTab);
                     }
                     else
                     {
@@ -556,6 +562,7 @@ namespace BetterTabs
                             Tabs[x].DisplayIndex = x;
                         }
                     }
+                    SelectedTab = draggedTab;
                     draggedTab.SetDragging(false);
                     draggedTab = null;
                 }
@@ -611,15 +618,25 @@ namespace BetterTabs
                 hitResults = new List<DependencyObject>();
                 VisualTreeHelper.HitTest(this, null, HitTestResultCallback, new PointHitTestParameters(e.GetPosition(this)));
                 bool validLeave = true;
+                if(hitResults.Count == 0 && e.OriginalSource is DependencyObject)
+                {
+                    hitResults.Add(e.OriginalSource as DependencyObject);
+                }
+                //List<DependencyObject> lastStack = new List<DependencyObject>();
                 foreach (DependencyObject thisHit in hitResults)
                 {
+                    //lastStack.Clear();
                     DependencyObject testHit = VisualTreeHelper.GetParent(thisHit);
                     while (testHit != null)
                     {
-                        if (testHit == this)
+                        //lastStack.Add(testHit);
+                        if (testHit is BetterTabControl && (testHit as BetterTabControl).id == this.id)
                         {
-                            validLeave = false;
-                            break;
+                            if ((testHit as BetterTabControl).id == this.id)
+                            {
+                                validLeave = false;
+                                break;
+                            }
                         }
                         testHit = VisualTreeHelper.GetParent(testHit);
                     }
@@ -1062,6 +1079,39 @@ namespace BetterTabs
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return (double)value > 0 ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    internal class UniversalValueConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            // obtain the conveter for the target type
+            TypeConverter converter = TypeDescriptor.GetConverter(targetType);
+
+            try
+            {
+                // determine if the supplied value is of a suitable type
+                if (converter.CanConvertFrom(value.GetType()))
+                {
+                    // return the converted value
+                    return converter.ConvertFrom(value);
+                }
+                else
+                {
+                    // try to convert from the string representation
+                    return converter.ConvertFrom(value.ToString());
+                }
+            }
+            catch (NotSupportedException)
+            {
+                return value;
+            }
+
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
