@@ -100,10 +100,11 @@ namespace BetterTabs
             new FrameworkPropertyMetadata(Brushes.White, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender, new PropertyChangedCallback(OnSelectedForegroundPropertyChanged))
             );
 
+#pragma warning disable S1450 // Private fields only used as local variables in methods should become local variables left for future use
         private ButtonBase CloseButton;
+#pragma warning restore S1450 // Private fields only used as local variables in methods should become local variables left for future use
         protected ContentControl TitleContent;
         private Panel TabBackground;
-        private int previousIndex;
         private bool settingFromParent;
         private bool backgroundSetManually;
         private bool foregroundSetManually;
@@ -135,7 +136,7 @@ namespace BetterTabs
             get { return (int)GetValue(DisplayIndexProperty); }
             set
             {
-                previousIndex = (int)GetValue(DisplayIndexProperty);
+                PreviousIndex = (int)GetValue(DisplayIndexProperty);
                 SetValue(DisplayIndexProperty, value);
             }
         }
@@ -175,7 +176,7 @@ namespace BetterTabs
             get { return (Brush)GetValue(SelectedForegroundProperty); }
             set { SetValue(SelectedForegroundProperty, value); }
         }
-        internal int PreviousIndex { get => previousIndex; set => previousIndex = value; }
+        internal int PreviousIndex { get; set; }
 
         public event CancelEventHandler TabClosing;
         public event EventHandler DisplayIndexchanged;
@@ -193,7 +194,7 @@ namespace BetterTabs
             TabTitle = tabTitle;
             TabContent = tabContent;
             SetID(Guid.NewGuid());
-            previousIndex = -1;
+            PreviousIndex = -1;
         }
         public Tab() : this("Untitled", null)
         {
@@ -403,15 +404,15 @@ namespace BetterTabs
                 throw new ArgumentNullException(nameof(x));
             if (y == null)
                 throw new ArgumentNullException(nameof(y));
-            if (x.DisplayIndex == y.DisplayIndex && x.previousIndex == y.previousIndex)
+            if (x.DisplayIndex == y.DisplayIndex && x.PreviousIndex == y.PreviousIndex)
             {
                 return 0;
             }
-            else if (x.DisplayIndex == y.DisplayIndex && x.previousIndex > y.previousIndex)
+            else if (x.DisplayIndex == y.DisplayIndex && x.PreviousIndex > y.PreviousIndex)
             {
                 return -1;
             }
-            else if (x.DisplayIndex == y.DisplayIndex && x.previousIndex < y.previousIndex)
+            else if (x.DisplayIndex == y.DisplayIndex && x.PreviousIndex < y.PreviousIndex)
             {
                 return 1;
             }
@@ -456,20 +457,11 @@ namespace BetterTabs
             }
             if (TabBackground != null)
             {
-                TabBackground.MouseEnter += TabBackground_MouseEnter;
                 TabBackground.PreviewDragOver += TabBackground_PreviewDragOver;
                 TabBackground.PreviewMouseLeftButtonDown += TabBackground_PreviewMouseLeftButtonDown;
                 TabBackground.PreviewMouseLeftButtonUp += TabBackground_PreviewMouseLeftButtonUp;
                 TabBackground.MouseLeave += TabBackground_MouseLeave;
             }
-        }
-        protected override void OnMouseEnter(MouseEventArgs e)
-        {
-            base.OnMouseEnter(e);
-        }
-        protected override void OnMouseLeave(MouseEventArgs e)
-        {
-            base.OnMouseLeave(e);
         }
         private void TabBackground_MouseLeave(object sender, MouseEventArgs e)
         {
@@ -500,14 +492,6 @@ namespace BetterTabs
             if (ParentTabControl != null)
             {
                 ParentTabControl.TabBackground_PreviewDragOver(this, e);
-            }
-        }
-
-        private void TabBackground_MouseEnter(object sender, MouseEventArgs e)
-        {
-            if (ParentTabControl != null)
-            {
-                ParentTabControl.TabBackground_MouseEnter(this, e);
             }
         }
 
