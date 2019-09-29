@@ -71,7 +71,6 @@ namespace BetterTabs
     }
 
     [TemplatePart(Name = "TabBar", Type = typeof(Panel))]
-    [TemplatePart(Name = "TabBarFiller", Type = typeof(UIElement))]
     [TemplatePart(Name = "TabsPresenter", Type = typeof(BetterTabsPresenter))]
     [TemplatePart(Name = "NewTabButton", Type = typeof(ButtonBase))]
     [TemplatePart(Name = "CurrentContent", Type = typeof(ContentPresenter))]
