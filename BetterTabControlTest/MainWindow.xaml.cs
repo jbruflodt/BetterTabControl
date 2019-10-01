@@ -15,6 +15,10 @@ namespace BetterTabControlTest
             {
                 Tabs.AddNewTab();
                 Tabs.SelectedTab.TabTitle = "tab" + x.ToString();
+                Tabs.SelectedTab.TabContent = new Button()
+                {
+                    Content = "tab" + x.ToString()
+                };
             }
             //Tabs.AddNewTab();
             //Tabs.AddNewTab();
