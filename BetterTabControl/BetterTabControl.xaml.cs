@@ -176,7 +176,7 @@ namespace BetterTabs
             "SelectedContent",
             typeof(object),
             typeof(BetterTabControl),
-            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender)
+            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.AffectsArrange)
             );
         public static readonly DependencyProperty SelectedContentTemplateProperty = DependencyProperty.Register(
             "SelectedContentTemplate",
@@ -349,6 +349,8 @@ namespace BetterTabs
             Tabs = new TabCollection(this);
             Tabs.CollectionChanged += TabsCollectionChanged;
             Loaded += BetterTabControl_Loaded;
+            this.SetBinding(SelectedContentProperty, new Binding() { Source = this, Path = new PropertyPath("SelectedTab.TabContent") });
+            this.SetBinding(SelectedContentTemplateProperty, new Binding() { Source = this, Path = new PropertyPath("SelectedTab.TabContentTemplate") });
         }
         public void AddNewTab()
         {
@@ -557,8 +559,8 @@ namespace BetterTabs
                     ClearSelected();
                     tab.SetSelected(true);
                     SetValue(SelectedTabProperty, tab);
-                    SetValue(SelectedContentProperty, tab.TabContent);
-                    SetValue(SelectedContentTemplateProperty, tab.TabContentTemplate);
+                    //SetValue(SelectedContentProperty, tab.TabContent);
+                    //SetValue(SelectedContentTemplateProperty, tab.TabContentTemplate);
                     OnSelectedTabChanged(oldSelection, tab);
                     NotifySelectedChanged();
                     tab.BringIntoView();

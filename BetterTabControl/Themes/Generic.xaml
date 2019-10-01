@@ -197,7 +197,7 @@
                                 </Button.Style>
                             </Button>
                         </Grid>
-                        <ContentControl x:Name="CurrentContent" Content="{TemplateBinding SelectedContent}" Grid.Row="1" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" ContentTemplate="{TemplateBinding SelectedContentTemplate}" DataContext="{TemplateBinding SelectedTab}"/>
+                        <ContentControl x:Name="CurrentContent" Content="{Binding SelectedContent, RelativeSource={RelativeSource Mode=TemplatedParent}, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" ContentTemplate="{TemplateBinding SelectedContentTemplate}" DataContext="{TemplateBinding SelectedTab}"/>
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>
