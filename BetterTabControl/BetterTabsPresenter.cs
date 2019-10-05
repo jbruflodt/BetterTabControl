@@ -49,21 +49,29 @@ namespace BetterTabs
         }
         protected virtual void OnCanExecuteLineRightCommand(object sender, CanExecuteRoutedEventArgs e)
         {
+            if (e is null)
+                throw new ArgumentNullException(nameof(e));
             e.CanExecute = TabScroller.ScrollableWidth - TabScroller.HorizontalOffset > 0;
             e.Handled = true;
         }
         protected virtual void OnCanExecuteLineRightCommand(object sender, ExecutedRoutedEventArgs e)
         {
+            if (e is null)
+                throw new ArgumentNullException(nameof(e));
             TabScroller.LineRight();
             e.Handled = true;
         }
         protected virtual void OnCanExecuteLineLeftCommand(object sender, CanExecuteRoutedEventArgs e)
         {
+            if (e is null)
+                throw new ArgumentNullException(nameof(e));
             e.CanExecute = TabScroller.HorizontalOffset > 0;
             e.Handled = true;
         }
         protected virtual void OnCanExecuteLineLeftCommand(object sender, ExecutedRoutedEventArgs e)
         {
+            if (e is null)
+                throw new ArgumentNullException(nameof(e));
             TabScroller.LineLeft();
             e.Handled = true;
         }

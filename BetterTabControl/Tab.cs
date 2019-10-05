@@ -100,10 +100,10 @@ namespace BetterTabs
             new FrameworkPropertyMetadata(Brushes.White, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender, new PropertyChangedCallback(OnSelectedForegroundPropertyChanged))
             );
 
-#pragma warning disable S1450 // Private fields only used as local variables in methods should become local variables left for future use
+#pragma warning disable S1450 // Private fields only used as local variables in methods should become local variables. left for future use
         private ButtonBase CloseButton;
-#pragma warning restore S1450 // Private fields only used as local variables in methods should become local variables left for future use
-        protected ContentControl TitleContent;
+#pragma warning restore S1450 // Private fields only used as local variables in methods should become local variables. left for future use
+        private protected ContentControl TitleContent;
         private Panel TabBackground;
         private bool settingFromParent;
         private bool backgroundSetManually;
@@ -179,12 +179,12 @@ namespace BetterTabs
         internal int PreviousIndex { get; set; }
 
         public event CancelEventHandler TabClosing;
-        public event EventHandler DisplayIndexchanged;
-        public event EventHandler TabContentChanged;
-        public event EventHandler TabContentTemplateChanged;
-        public event EventHandler ParentTabControlChanged;
+        public event DependencyPropertyChangedEventHandler DisplayIndexchanged;
+        public event DependencyPropertyChangedEventHandler TabContentChanged;
+        public event DependencyPropertyChangedEventHandler TabContentTemplateChanged;
+        public event DependencyPropertyChangedEventHandler ParentTabControlChanged;
         public event EventHandler TabClosed;
-        public event EventHandler TabTitleChanged;
+        public event DependencyPropertyChangedEventHandler TabTitleChanged;
         public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler TabDeselected;
         public event EventHandler TabSelected;
@@ -351,29 +351,30 @@ namespace BetterTabs
         }
         protected void OnTabTitleChanged(object oldValue, object newValue)
         {
-            TabTitleChanged?.Invoke(this, new EventArgs());
+            TabTitleChanged?.Invoke(this, new DependencyPropertyChangedEventArgs(TabTitleProperty, oldValue, newValue));
             NotifyPropertyChanged(nameof(TabTitle));
         }
         protected void OnTabContentChanged(object oldValue, object newValue)
         {
-            TabContentChanged?.Invoke(this, new EventArgs());
+            TabContentChanged?.Invoke(this, new DependencyPropertyChangedEventArgs(TabContentProperty, oldValue, newValue));
             NotifyPropertyChanged(nameof(TabContent));
         }
         protected void OnTabContentTemplateChanged(DataTemplate oldValue, DataTemplate newValue)
         {
-            TabContentTemplateChanged?.Invoke(this, new EventArgs());
+            TabContentTemplateChanged?.Invoke(this, new DependencyPropertyChangedEventArgs(TabContentTemplateProperty, oldValue, newValue));
             NotifyPropertyChanged(nameof(TabContentTemplate));
         }
         protected void OnParentTabControlChanged(BetterTabControl oldValue, BetterTabControl newValue)
         {
-            ParentTabControlChanged?.Invoke(this, new EventArgs());
+            ParentTabControlChanged?.Invoke(this, new DependencyPropertyChangedEventArgs(ParentTabControlProperty, oldValue, newValue));
             NotifyPropertyChanged(nameof(ParentTabControl));
         }
         protected void OnDisplayIndexChanged(int oldValue, int newValue)
         {
-            DisplayIndexchanged?.Invoke(this, new EventArgs());
+            DisplayIndexchanged?.Invoke(this, new DependencyPropertyChangedEventArgs(DisplayIndexProperty, oldValue, newValue));
             NotifyPropertyChanged(nameof(DisplayIndex));
         }
+        
         protected void OnIsDraggingChanged(bool oldValue, bool newValue)
         {
             NotifyPropertyChanged(nameof(IsDragging));
@@ -427,12 +428,16 @@ namespace BetterTabs
         }
         protected override void OnPreviewKeyDown(KeyEventArgs e)
         {
+            if (e is null)
+                throw new ArgumentNullException(nameof(e));
             base.OnPreviewKeyDown(e);
             if (e.Key == Key.Space)
                 SetPressed(true);
         }
         protected override void OnPreviewKeyUp(KeyEventArgs e)
         {
+            if (e is null)
+                throw new ArgumentNullException(nameof(e));
             base.OnPreviewKeyUp(e);
             if (e.Key == Key.Space && IsPressed && !IsSelected)
             {
@@ -442,6 +447,8 @@ namespace BetterTabs
         }
         protected override void OnLostFocus(RoutedEventArgs e)
         {
+            if (e is null)
+                throw new ArgumentNullException(nameof(e));
             base.OnLostFocus(e);
             if (IsPressed)
                 SetPressed(false);

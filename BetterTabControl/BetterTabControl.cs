@@ -28,7 +28,7 @@ namespace BetterTabs
             if (ancestorType == null)
                 throw new ArgumentNullException(nameof(ancestorType));
             else if (!typeof(DependencyObject).IsAssignableFrom(ancestorType))
-                throw new ArgumentException("ancestoryType must be a type that DependencyObject is assignable from");
+                throw new ArgumentException(Properties.Resources.ResourceManager.GetString("AssignableFromDependencyObjectExceptionMessage", CultureInfo.CurrentUICulture), nameof(ancestorType));
             else
             {
                 DependencyObject testFind = LogicalTreeHelper.GetParent(dp);
@@ -46,7 +46,7 @@ namespace BetterTabs
             if (ancestorType == null)
                 throw new ArgumentNullException(nameof(ancestorType));
             else if (!typeof(DependencyObject).IsAssignableFrom(ancestorType))
-                throw new ArgumentException("ancestoryType must be a type that DependencyObject is assignable from");
+                throw new ArgumentException(Properties.Resources.ResourceManager.GetString("AssignableFromDependencyObjectExceptionMessage", CultureInfo.CurrentUICulture), nameof(ancestorType));
             else
             {
                 DependencyObject testFind = VisualTreeHelper.GetParent(dp);
@@ -189,7 +189,7 @@ namespace BetterTabs
 
         public static readonly RoutedUICommand PreviousTabCommand = new RoutedUICommand("Previous Tab", "PreviousTab", typeof(BetterTabControl), new InputGestureCollection(new InputGestureCollection { new KeyGesture(Key.Tab, ModifierKeys.Control | ModifierKeys.Shift) }));
 
-        protected ContentPresenter CurrentContent;
+        private protected ContentPresenter CurrentContent;
 
         private bool doingDragDrop;
 
@@ -201,15 +201,15 @@ namespace BetterTabs
 
         private bool indexing;
 
-        protected ButtonBase NewTabButton;
+        private protected ButtonBase NewTabButton;
 
-        protected Panel TabBar;
+        private protected Panel TabBar;
 
-        protected UIElement TabBarFiller;
+        private protected UIElement TabBarFiller;
 
-        protected BetterTabsPresenter tabsPresenter;
+        private protected BetterTabsPresenter tabsPresenter;
 
-        protected Guid id;
+        private protected Guid id;
 
         public Brush BarBackgroundColor
         {
@@ -303,10 +303,6 @@ namespace BetterTabs
             {
                 return (TabCollection)GetValue(TabsProperty);
             }
-            set
-            {
-                SetValue(TabsProperty, value);
-            }
         }
 
         public Style TabStyle
@@ -346,11 +342,11 @@ namespace BetterTabs
         public BetterTabControl()
         {
             id = Guid.NewGuid();
-            Tabs = new TabCollection(this);
+            SetValue(TabsProperty, new TabCollection(this));
             Tabs.CollectionChanged += TabsCollectionChanged;
             Loaded += BetterTabControl_Loaded;
-            this.SetBinding(SelectedContentProperty, new Binding() { Source = this, Path = new PropertyPath("SelectedTab.TabContent") });
-            this.SetBinding(SelectedContentTemplateProperty, new Binding() { Source = this, Path = new PropertyPath("SelectedTab.TabContentTemplate") });
+            this.SetBinding(SelectedContentProperty, new Binding() { Source = this, Path = new PropertyPathConverter().ConvertFromString("SelectedTab.TabContent") as PropertyPath });
+            this.SetBinding(SelectedContentTemplateProperty, new Binding() { Source = this, Path = new PropertyPathConverter().ConvertFromString("SelectedTab.TabContentTemplate") as PropertyPath });
         }
         public void AddNewTab()
         {
@@ -358,7 +354,7 @@ namespace BetterTabs
             Tabs.Add(addedTab);
             ChangeSelectedTab(addedTab);
         }
-        internal protected virtual void OnTabAdded(AddTabEventArgs e)
+        protected internal virtual void OnTabAdded(AddTabEventArgs e)
         {
             AddedNewTab?.Invoke(this, e);
         }
@@ -393,6 +389,8 @@ namespace BetterTabs
         }
         protected override void OnPreviewMouseMove(MouseEventArgs e)
         {
+            if (e is null)
+                throw new ArgumentNullException(nameof(e));
             if (e.LeftButton == MouseButtonState.Released)
             {
                 draggedTab = null;
@@ -477,6 +475,8 @@ namespace BetterTabs
         }
         protected override void OnPreviewDragOver(DragEventArgs e)
         {
+            if (e is null)
+                throw new ArgumentNullException(nameof(e));
             DependencyObject visualHit = VisualTreeHelper.HitTest(this as Visual, e.GetPosition(this as IInputElement)).VisualHit;
             DependencyObject visualAncestor = visualHit?.FindVisualAncestor(typeof(Button));
             if (visualAncestor == null)
@@ -551,6 +551,8 @@ namespace BetterTabs
 
         protected internal void ChangeSelectedTab(Tab tab)
         {
+            if (tab is null)
+                throw new ArgumentNullException(nameof(tab));
             if (Tabs.Contains(tab))
             {
                 Tab oldSelection = SelectedTab;
@@ -559,8 +561,6 @@ namespace BetterTabs
                     ClearSelected();
                     tab.SetSelected(true);
                     SetValue(SelectedTabProperty, tab);
-                    //SetValue(SelectedContentProperty, tab.TabContent);
-                    //SetValue(SelectedContentTemplateProperty, tab.TabContentTemplate);
                     OnSelectedTabChanged(oldSelection, tab);
                     NotifySelectedChanged();
                     tab.BringIntoView();
@@ -568,7 +568,7 @@ namespace BetterTabs
             }
             else
             {
-                throw new ArgumentException("tab is not in this BetterTabControl");
+                throw new ArgumentException(Properties.Resources.ResourceManager.GetString("TabNotInControlException", CultureInfo.CurrentUICulture), nameof(tab));
             }
         }
 
@@ -579,6 +579,8 @@ namespace BetterTabs
 
         protected override void OnPreviewDragEnter(DragEventArgs e)
         {
+            if (e is null)
+                throw new ArgumentNullException(nameof(e));
             base.OnPreviewDragEnter(e);
             if (e.Data.GetDataPresent(typeof(Tab)))
             {
@@ -591,9 +593,10 @@ namespace BetterTabs
             }
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Major Code Smell", "S125:Sections of code should not be commented out", Justification = "Used for debugging")]
         protected override void OnPreviewDragLeave(DragEventArgs e)
         {
+            if (e is null)
+                throw new ArgumentNullException(nameof(e));
             base.OnPreviewDragLeave(e);
             if (e.Data.GetDataPresent(typeof(Tab)))
             {
@@ -604,14 +607,11 @@ namespace BetterTabs
                 {
                     hitResults.Add(e.OriginalSource as DependencyObject);
                 }
-                //List<DependencyObject> lastStack = new List<DependencyObject>();
                 foreach (DependencyObject thisHit in hitResults)
                 {
-                    //lastStack.Clear();
                     DependencyObject testHit = VisualTreeHelper.GetParent(thisHit);
                     while (testHit != null)
                     {
-                        //lastStack.Add(testHit);
                         if (testHit is BetterTabControl && (testHit as BetterTabControl).id == id && (testHit as BetterTabControl).id == id)
                         {
                             validLeave = false;
@@ -637,6 +637,8 @@ namespace BetterTabs
 
         protected override void OnPreviewDrop(DragEventArgs e)
         {
+            if (e is null)
+                throw new ArgumentNullException(nameof(e));
             base.OnPreviewDrop(e);
             if (e.Data.GetDataPresent(typeof(Tab)))
             {
@@ -811,8 +813,10 @@ namespace BetterTabs
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             float changeValue = 0;
+            if (parameter is null)
+                throw new ArgumentNullException(nameof(parameter));
             if (!parameter.GetType().GetTypeInfo().IsAssignableFrom(typeof(float)) && !float.TryParse(parameter.ToString(), out changeValue))
-                throw new ArgumentException("parameter must be assignable from float", nameof(parameter));
+                throw new ArgumentException(Properties.Resources.ResourceManager.GetString("AssignableFromFloatExceptionMessage", culture), nameof(parameter));
             Color color = Colors.Transparent;
             if (targetType == null)
             {
@@ -824,7 +828,7 @@ namespace BetterTabs
                 {
                     return value;
                 }
-                throw new ArgumentException("targetType must be assignable from Color or SolidColorBrush", nameof(targetType));
+                throw new ArgumentException(Properties.Resources.ResourceManager.GetString("AssignableFromColorSolidColorBrushExceptionMessage", culture), nameof(targetType));
             }
             if (value == null)
             {
@@ -839,7 +843,7 @@ namespace BetterTabs
                 {
                     return value;
                 }
-                throw new ArgumentException("value must be assignable to Color or SolidColorBrush", nameof(value));
+                throw new ArgumentException(Properties.Resources.ResourceManager.GetString("AssignableFromColorSolidColorBrushExceptionMessage", culture), nameof(value));
             }
             if (typeof(Color).GetTypeInfo().IsInstanceOfType(value))
                 color = (Color)value;
@@ -854,8 +858,10 @@ namespace BetterTabs
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             float changeValue = 0;
+            if (parameter is null)
+                throw new ArgumentNullException(nameof(parameter));
             if (!parameter.GetType().GetTypeInfo().IsAssignableFrom(typeof(float)) && !float.TryParse(parameter.ToString(), out changeValue))
-                throw new ArgumentException("parameter must be assignable from float", nameof(parameter));
+                throw new ArgumentException(Properties.Resources.ResourceManager.GetString("AssignableFromFloatExceptionMessage", culture), nameof(parameter));
             Color color = Colors.Transparent;
             if (targetType == null)
             {
@@ -867,7 +873,7 @@ namespace BetterTabs
                 {
                     return value;
                 }
-                throw new ArgumentException("targetType must be assignable from Color or SolidColorBrush", nameof(targetType));
+                throw new ArgumentException(Properties.Resources.ResourceManager.GetString("AssignableFromColorSolidColorBrushExceptionMessage", culture), nameof(targetType));
             }
             if (value == null)
             {
@@ -882,7 +888,7 @@ namespace BetterTabs
                 {
                     return value;
                 }
-                throw new ArgumentException("value must be assignable to Color or SolidColorBrush", nameof(value));
+                throw new ArgumentException(Properties.Resources.ResourceManager.GetString("AssignableFromColorSolidColorBrushExceptionMessage", culture), nameof(value));
             }
             if (typeof(Color).GetTypeInfo().IsInstanceOfType(value))
                 color = (Color)value;
@@ -974,6 +980,8 @@ namespace BetterTabs
 
         protected override void InsertItem(int index, Tab item)
         {
+            if (item == null)
+                throw new ArgumentNullException(nameof(item));
             if (item.IsSelected)
                 item.SetSelected(false);
             if (item.ParentTabControl == null || item.ParentTabControl == parentTabControl)
@@ -987,10 +995,10 @@ namespace BetterTabs
                     parentTabControl.OnTabAdded(new AddTabEventArgs(item));
                 }
                 else
-                    throw new ArgumentException("Tab is already in this collection");
+                    throw new ArgumentException(Properties.Resources.ResourceManager.GetString("TabInCollectionException", CultureInfo.CurrentUICulture), nameof(item));
             }
             else
-                throw new ArgumentException("Tab is already in this collection");
+                throw new ArgumentException(Properties.Resources.ResourceManager.GetString("TabInCollectionException", CultureInfo.CurrentUICulture), nameof(item));
         }
 
         private void Item_TabSelected(object sender, EventArgs e)
