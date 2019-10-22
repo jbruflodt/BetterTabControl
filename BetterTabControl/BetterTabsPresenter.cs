@@ -51,7 +51,7 @@ namespace BetterTabs
         {
             if (e is null)
                 throw new ArgumentNullException(nameof(e));
-            e.CanExecute = TabScroller.ScrollableWidth - TabScroller.HorizontalOffset > 0;
+            e.CanExecute = TabScroller != null && TabScroller.ScrollableWidth - TabScroller.HorizontalOffset > 0;
             e.Handled = true;
         }
         protected virtual void OnCanExecuteLineRightCommand(object sender, ExecutedRoutedEventArgs e)
@@ -65,7 +65,7 @@ namespace BetterTabs
         {
             if (e is null)
                 throw new ArgumentNullException(nameof(e));
-            e.CanExecute = TabScroller.HorizontalOffset > 0;
+            e.CanExecute = TabScroller != null && TabScroller.HorizontalOffset > 0;
             e.Handled = true;
         }
         protected virtual void OnCanExecuteLineLeftCommand(object sender, ExecutedRoutedEventArgs e)

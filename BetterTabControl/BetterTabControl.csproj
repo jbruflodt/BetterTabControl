@@ -15,8 +15,8 @@
     <RepositoryUrl>https://github.com/jbruflodt/BetterTabControl.git</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <AssemblyVersion>1.0.19278.1402</AssemblyVersion>
-    <FileVersion>1.0.19278.1402</FileVersion>
+    <AssemblyVersion>1.0.19295.1523</AssemblyVersion>
+    <FileVersion>1.0.19295.1523</FileVersion>
     <Version>$(AssemblyVersion)</Version>
     <PackageVersion>$(AssemblyVersion)</PackageVersion>
     <ShouldCreateLogs>True</ShouldCreateLogs>
@@ -30,6 +30,7 @@
     <AssemblyVersionSettings>IncrementOnDemand.IncrementOnDemand.DateStamp.TimeStamp</AssemblyVersionSettings>
     <AssemblyFileVersionSettings>IncrementOnDemand.IncrementOnDemand.DateStamp.TimeStamp</AssemblyFileVersionSettings>
     <AssemblyInfoVersionSettings>IncrementOnDemand.IncrementOnDemand.DateStamp.TimeStamp</AssemblyInfoVersionSettings>
+    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <GenerateSerializationAssemblies>On</GenerateSerializationAssemblies>
